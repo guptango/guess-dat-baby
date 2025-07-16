@@ -66,6 +66,9 @@
 		clone.style.position = 'fixed'
 		clone.style.left = '0px'
 		clone.style.top = '0px'
+		clone.style.transform = 'translate(-50%, -50%)'
+		clone.style.pointerEvents = 'none'
+		clone.style.zIndex = '9999'
 		document.body.appendChild(clone)
 		return clone
 	}
@@ -179,6 +182,10 @@
 				if (dx > dy) {
 					event.preventDefault()
 					draggedClone = createDragClone(draggedItem)
+					// Position the clone at the current finger position immediately
+					draggedClone.style.left = `${currentX}px`
+					draggedClone.style.top = `${currentY}px`
+					draggedClone.style.transform = 'translate(-50%, -50%)'
 					draggedItem.classList.add('dragging')
 				} else {
 					draggedItem = null
@@ -191,8 +198,10 @@
 			event.preventDefault()
 		}
 
+		// Ensure proper positioning accounting for any viewport scaling
 		draggedClone.style.left = `${currentX}px`
 		draggedClone.style.top = `${currentY}px`
+		draggedClone.style.transform = 'translate(-50%, -50%)'
 
 		const elementUnderFinger = getElementUnderPoint(currentX, currentY)
 		const potentialTarget = elementUnderFinger ? elementUnderFinger.closest('.baby-card') : null
@@ -881,12 +890,12 @@
 	}
 
 	.touch-dragging-clone {
-		position: fixed;
-		pointer-events: none;
-		z-index: 9999;
+		position: fixed !important;
+		pointer-events: none !important;
+		z-index: 9999 !important;
 		opacity: 0.8;
 		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-		transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%) !important;
 		background-color: #fdf6fa;
 		color: #7a4d64;
 		padding: 8px;
@@ -899,6 +908,7 @@
 		align-items: center;
 		gap: 4px;
 		width: 140px;
+		max-width: 140px;
 	}
 	.touch-dragging-clone .celebrity-image {
 		width: 50px;
