@@ -1,20 +1,21 @@
 <script>
-    import { mommy, daddy, maleCelebrities, femaleCelebrities, gameData, celebrityImages } from '../lib/gameData';
-    import BabyGuesser from '../lib/BabyGuesser.svelte';
+    import { onMount } from 'svelte'
+    
+    onMount(() => {
+        // Redirect to host page for now
+        window.location.href = '/host'
+    })
 </script>
 
 <div class="game-container">
     <h1 class="text-3xl font-bold text-rose-800 mb-4">Guess Dat Baby!</h1>
-    <p class="text-pink-700 mb-6">Drag a parent combination card onto the baby picture you think it matches!</p>
-
-    <BabyGuesser 
-        {gameData}
-        {celebrityImages}
-        {maleCelebrities}
-        {femaleCelebrities}
-        {mommy}
-        {daddy}
-    />
+    <p class="text-pink-700 mb-6">Redirecting to host page...</p>
+    
+    <div class="text-center">
+        <a href="/host" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded">
+            Go to Host Page
+        </a>
+    </div>
 </div>
 
 <style>
