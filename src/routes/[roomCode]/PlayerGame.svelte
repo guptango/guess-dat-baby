@@ -44,7 +44,9 @@
 	function shuffleArray(array) {
 		for (let i = array.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1))
-			[array[i], array[j]] = [array[j], array[i]]
+			const temp = array[i]
+			array[i] = array[j]
+			array[j] = temp
 		}
 		return array
 	}
@@ -79,6 +81,8 @@
 		if (gameSubmitted) return
 		draggedItem = event.target
 		dragSourceParent = draggedItem.parentNode
+		
+		
 		event.dataTransfer.setData('text/plain', draggedItem.dataset.comboId)
 		event.dataTransfer.effectAllowed = 'move'
 		setTimeout(() => {
@@ -128,17 +132,14 @@
 		const comboId = event.dataTransfer.getData('text/plain')
 		const targetBabyCard = event.target.closest('.baby-card')
 
-		console.log('Drop event:', { comboId, targetBabyCard })
 
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 		currentDropTarget = null
 
 		if (!targetBabyCard || !comboId) {
-			console.log('Drop failed: missing target or combo ID')
 			return
 		}
 		const babyId = targetBabyCard.dataset.babyId
-		console.log('Drop target baby ID:', babyId)
 		
 		if (currentMatches[babyId]) {
 			showModal('Oops!', 'This baby already has a match. Please undo the current match first if you want to change it.')
@@ -242,7 +243,6 @@
 			return
 		}
 
-		console.log('Performing drop logic:', { babyId, comboId, comboData })
 		
 		// Update reactive state directly (like original BabyGuesser)
 		currentMatches = { ...currentMatches, [babyId]: comboData }
@@ -253,9 +253,6 @@
 			originalParentCard.classList.add('hidden')
 		}
 		
-		console.log('Updated currentMatches:', currentMatches)
-		console.log('Keys in currentMatches:', Object.keys(currentMatches))
-		console.log('Value for', babyId, ':', currentMatches[babyId])
 	}
 
 	function undoMatch(babyId, comboId) {
@@ -272,15 +269,10 @@
 			originalParentCard.classList.remove('hidden')
 		}
 		
-		console.log('Undoing match:', { babyId, comboId })
-		console.log('Updated currentMatches after undo:', currentMatches)
 	}
 
 	function isComboUsed(combo) {
 		const used = Object.values(currentMatches).some(match => match.id === combo.id)
-		if (used) {
-			console.log('Combo is used:', combo.id, combo.mom, combo.dad)
-		}
 		return used
 	}
 
@@ -392,13 +384,7 @@
 					<h4 class="text-lg font-semibold text-rose-700 mb-2">Baby {shuffledGameData.indexOf(baby) + 1}</h4>
 					<img src={baby.babyImage} alt={`Baby ${shuffledGameData.indexOf(baby) + 1}`} class="baby-image">
 
-					<!-- Debug info -->
-					<div class="text-xs text-gray-400 mb-1">
-						Match: {currentMatches[baby.babyId] ? 'YES' : 'NO'} | 
-						Baby: {baby.babyId} |
-						Keys: {Object.keys(currentMatches).join(', ')}
-					</div>
-					
+			
 					{#if currentMatches[baby.babyId]}
 						<div class="dropped-parent-card rounded-lg p-3 flex flex-col items-center justify-center" data-combo-id={currentMatches[baby.babyId].id}>
 							<div class="celebrity-images-wrapper">
