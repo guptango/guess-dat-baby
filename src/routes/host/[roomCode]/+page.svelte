@@ -20,19 +20,25 @@
 	// Computed value to group guesses by couple
 	let groupedGuesses = $derived.by(() => {
 		const groups = {}
-		currentGuesses.forEach(guess => {
-			const coupleName = guess.couple_name
+		// Ensure we're working with a safe copy of the data
+		const safeGuesses = [...currentGuesses]
+		safeGuesses.forEach(guess => {
+			const coupleName = guess?.couple_name || 'Unknown Couple'
+			const playerName = guess?.players?.name || 'Unknown Player'
 			if (!groups[coupleName]) {
-				groups[coupleName] = []
+				groups[coupleName] = [playerName]
+			} else {
+				groups[coupleName] = [...groups[coupleName], playerName]
 			}
-			groups[coupleName].push(guess.players?.name || 'Unknown Player')
 		})
-		const result = Object.entries(groups).map(([couple, players]) => ({
+		return Object.entries(groups).map(([couple, players]) => ({
 			couple,
 			players
 		}))
-		return result
 	})
+
+	// Sorted players for display
+	let sortedPlayers = $derived([...players].sort((a, b) => b.score - a.score))
 
 	// Correct answers mapping - stays in host browser only
 	const correctAnswers = [
@@ -67,7 +73,7 @@
 			return
 		}
 
-		room = roomData
+		room = { ...roomData }
 		gameState = room.game_state
 		currentRevealIndex = room.current_reveal_index || 0
 		
@@ -107,7 +113,8 @@
 					if (payload.new) {
 						gameState = payload.new.game_state
 						currentRevealIndex = payload.new.current_reveal_index || 0
-						room = { ...room, ...payload.new }
+						// Create a completely new room object to avoid mutation
+						room = { ...payload.new }
 					}
 				}
 			)
@@ -123,7 +130,8 @@
 			.eq('room_id', room.id)
 
 		if (!error) {
-			players = data
+			// Deep copy to avoid mutation issues with Supabase data
+			players = JSON.parse(JSON.stringify(data || []))
 		}
 	}
 
@@ -204,7 +212,9 @@
 			}
 
 			currentBabyData = gameData[currentRevealIndex]
-			currentGuesses = await getGuessesForReveal(room.id, currentRevealIndex)
+			const guesses = await getGuessesForReveal(room.id, currentRevealIndex)
+			// Deep copy to avoid mutation issues with Supabase data
+			currentGuesses = JSON.parse(JSON.stringify(guesses || []))
 			showingAnswer = false
 		} catch (error) {
 			console.error('Error in loadCurrentReveal:', error)
@@ -414,7 +424,7 @@
 					<div class="bg-white rounded-lg shadow-lg p-6 mb-8">
 						<h4 class="text-xl font-semibold text-rose-700 mb-4">Current Scores</h4>
 						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-							{#each players.sort((a, b) => b.score - a.score) as player}
+							{#each sortedPlayers as player}
 								<div class="bg-rose-50 rounded-lg p-4 text-center">
 									<p class="font-semibold text-rose-700">{player.name}</p>
 									<p class="text-2xl font-bold text-rose-600">{player.score}</p>
@@ -461,7 +471,7 @@
 				
 				<div class="bg-white rounded-lg shadow-lg p-8">
 					<div class="space-y-6">
-						{#each players.sort((a, b) => b.score - a.score) as player, index}
+						{#each sortedPlayers as player, index}
 							<div class="flex items-center justify-between p-4 rounded-lg {index === 0 ? 'bg-yellow-100 border-2 border-yellow-400' : index === 1 ? 'bg-gray-100 border-2 border-gray-400' : index === 2 ? 'bg-orange-100 border-2 border-orange-400' : 'bg-rose-50 border border-rose-200'}">
 								<div class="flex items-center gap-4">
 									<div class="text-2xl font-bold {index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : index === 2 ? 'text-orange-600' : 'text-rose-600'}">
