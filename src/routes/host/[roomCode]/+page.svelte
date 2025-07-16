@@ -257,7 +257,7 @@
 					<div class="text-6xl font-bold text-rose-500 bg-rose-50 rounded-lg py-4 px-8 inline-block">
 						{room.code}
 					</div>
-					<p class="text-gray-600 mt-2">Players can join at: <strong>{window.location.hostname}/{room.code}</strong></p>
+					<p class="text-gray-600 mt-2">Players can join at: <strong> http://{window.location.hostname}/{room.code}</strong></p>
 				</div>
 
 				<div class="mb-6">
