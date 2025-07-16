@@ -69,7 +69,7 @@
 
 		room = roomData
 		gameState = room.game_state
-		currentRevealIndex = room.current_reveal_index
+		currentRevealIndex = room.current_reveal_index || 0
 		
 		subscribeToRoom()
 		await loadPlayers()
@@ -106,7 +106,7 @@
 					console.log('Room change:', payload)
 					if (payload.new) {
 						gameState = payload.new.game_state
-						currentRevealIndex = payload.new.current_reveal_index
+						currentRevealIndex = payload.new.current_reveal_index || 0
 						room = { ...room, ...payload.new }
 					}
 				}
@@ -191,15 +191,24 @@
 	}
 
 	async function loadCurrentReveal() {
-		if (currentRevealIndex >= gameData.length) {
-			// All babies revealed, go to results
-			await updateGameState(room.id, GAME_STATES.RESULTS)
-			return
-		}
+		try {
+			if (!room || typeof currentRevealIndex !== 'number') {
+				console.warn('Invalid state for loadCurrentReveal:', { room, currentRevealIndex })
+				return
+			}
 
-		currentBabyData = gameData[currentRevealIndex]
-		currentGuesses = await getGuessesForReveal(room.id, currentRevealIndex)
-		showingAnswer = false
+			if (currentRevealIndex >= gameData.length) {
+				// All babies revealed, go to results
+				await updateGameState(room.id, GAME_STATES.RESULTS)
+				return
+			}
+
+			currentBabyData = gameData[currentRevealIndex]
+			currentGuesses = await getGuessesForReveal(room.id, currentRevealIndex)
+			showingAnswer = false
+		} catch (error) {
+			console.error('Error in loadCurrentReveal:', error)
+		}
 	}
 
 	async function revealAnswer() {
@@ -222,8 +231,11 @@
 
 	// Effect to handle reveal state changes
 	$effect(() => {
-		if (gameState === GAME_STATES.REVEAL && room) {
-			loadCurrentReveal()
+		if (gameState === GAME_STATES.REVEAL && room && typeof currentRevealIndex === 'number') {
+			// Add a small delay to ensure all state updates have been processed
+			setTimeout(() => {
+				loadCurrentReveal()
+			}, 100)
 		}
 	})
 </script>
