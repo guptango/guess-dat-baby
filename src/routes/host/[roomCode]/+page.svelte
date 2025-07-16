@@ -17,6 +17,23 @@
 	let showingAnswer = $state(false)
 	let revealLoading = $state(false)
 
+	// Computed value to group guesses by couple
+	let groupedGuesses = $derived.by(() => {
+		const groups = {}
+		currentGuesses.forEach(guess => {
+			const coupleName = guess.couple_name
+			if (!groups[coupleName]) {
+				groups[coupleName] = []
+			}
+			groups[coupleName].push(guess.players?.name || 'Unknown Player')
+		})
+		const result = Object.entries(groups).map(([couple, players]) => ({
+			couple,
+			players
+		}))
+		return result
+	})
+
 	// Correct answers mapping - stays in host browser only
 	const correctAnswers = [
 		'Daddy & Halle Berry',
@@ -74,7 +91,6 @@
 					filter: `room_id=eq.${room.id}`
 				},
 				(payload) => {
-					console.log('Player change:', payload)
 					loadPlayers()
 				}
 			)
@@ -319,14 +335,43 @@
 							{#if currentGuesses.length === 0}
 								<p class="text-gray-500 italic">No guesses submitted for this baby...</p>
 							{:else}
-								<div class="space-y-3">
-									{#each currentGuesses as guess}
-										<div class="bg-rose-50 rounded-lg p-3 flex justify-between items-center">
-											<span class="font-medium text-rose-700">{guess.players?.name}</span>
-											<span class="text-gray-600">{guess.couple_name}</span>
-										</div>
-									{/each}
-								</div>
+						
+								{#if groupedGuesses.length > 0}
+									<div class="space-y-4">
+										{#each groupedGuesses as group}
+											<div class="bg-rose-50 rounded-lg p-4">
+												<div class="flex items-center gap-4 mb-3">
+													<!-- Couple Pictures -->
+													<div class="flex gap-2">
+														{#each group.couple.split(' & ') as person}
+															{#if celebrityImages[person]}
+																<img src={celebrityImages[person]} alt={person} class="w-10 h-10 rounded-full object-cover border-2 border-rose-300">
+															{/if}
+														{/each}
+													</div>
+													<!-- Couple Name -->
+													<div class="font-semibold text-rose-700 text-lg">{group.couple}</div>
+												</div>
+												<!-- Players who voted -->
+												<div class="flex flex-wrap gap-2">
+													{#each group.players as player}
+														<span class="bg-white text-rose-600 px-3 py-1 rounded-full text-sm font-medium">{player}</span>
+													{/each}
+												</div>
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<!-- Fallback to original display -->
+									<div class="space-y-3">
+										{#each currentGuesses as guess}
+											<div class="bg-rose-50 rounded-lg p-3 flex justify-between items-center">
+												<span class="font-medium text-rose-700">{guess.players?.name}</span>
+												<span class="text-gray-600">{guess.couple_name}</span>
+											</div>
+										{/each}
+									</div>
+								{/if}
 							{/if}
 						</div>
 					</div>

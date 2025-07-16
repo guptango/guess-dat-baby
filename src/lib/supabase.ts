@@ -210,6 +210,22 @@ export async function getPlayersInRoom(roomId: string) {
 }
 
 export async function getGuessesForReveal(roomId: string, babyIndex: number) {
+  // First get the player IDs for this room
+  const { data: playerIds, error: playerError } = await supabase
+    .from('players')
+    .select('id')
+    .eq('room_id', roomId)
+
+  if (playerError) {
+    console.error('Error getting player IDs:', playerError)
+    return []
+  }
+
+  if (!playerIds || playerIds.length === 0) {
+    return []
+  }
+
+  // Then get the guesses for these players and this baby
   const { data, error } = await supabase
     .from('guesses')
     .select(`
@@ -217,19 +233,14 @@ export async function getGuessesForReveal(roomId: string, babyIndex: number) {
       players (name)
     `)
     .eq('baby_index', babyIndex)
-    .in('player_id', 
-      supabase
-        .from('players')
-        .select('id')
-        .eq('room_id', roomId)
-    )
+    .in('player_id', playerIds.map(p => p.id))
 
   if (error) {
     console.error('Error getting guesses:', error)
     return []
   }
 
-  return data
+  return data || []
 }
 
 export async function calculateAndUpdateScores(roomId: string, babyIndex: number, correctAnswer: string) {
