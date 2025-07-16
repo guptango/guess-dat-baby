@@ -128,13 +128,18 @@
 		const comboId = event.dataTransfer.getData('text/plain')
 		const targetBabyCard = event.target.closest('.baby-card')
 
+		console.log('Drop event:', { comboId, targetBabyCard })
+
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 		currentDropTarget = null
 
 		if (!targetBabyCard || !comboId) {
+			console.log('Drop failed: missing target or combo ID')
 			return
 		}
 		const babyId = targetBabyCard.dataset.babyId
+		console.log('Drop target baby ID:', babyId)
+		
 		if (currentMatches[babyId]) {
 			showModal('Oops!', 'This baby already has a match. Please undo the current match first if you want to change it.')
 			return
@@ -237,32 +242,89 @@
 			return
 		}
 
+		console.log('Performing drop logic:', { babyId, comboId, comboData })
+		
+		// Update reactive state directly (like original BabyGuesser)
 		currentMatches = { ...currentMatches, [babyId]: comboData }
-
+		
+		// Hide the original draggable card from the parents list (like original)
 		const originalParentCard = document.getElementById(comboId)
 		if (originalParentCard) {
 			originalParentCard.classList.add('hidden')
 		}
+		
+		console.log('Updated currentMatches:', currentMatches)
+		console.log('Keys in currentMatches:', Object.keys(currentMatches))
+		console.log('Value for', babyId, ':', currentMatches[babyId])
 	}
 
 	function undoMatch(babyId, comboId) {
 		if (gameSubmitted) return
 
+		// Remove the match from currentMatches (like original BabyGuesser)
 		const newMatches = { ...currentMatches }
 		delete newMatches[babyId]
-		currentMatches = newMatches
-
+		currentMatches = newMatches // Trigger reactivity
+		
+		// Show the original parent card back in the parents list (like original)
 		const originalParentCard = document.getElementById(comboId)
 		if (originalParentCard) {
 			originalParentCard.classList.remove('hidden')
 		}
+		
+		console.log('Undoing match:', { babyId, comboId })
+		console.log('Updated currentMatches after undo:', currentMatches)
+	}
+
+	function isComboUsed(combo) {
+		const used = Object.values(currentMatches).some(match => match.id === combo.id)
+		if (used) {
+			console.log('Combo is used:', combo.id, combo.mom, combo.dad)
+		}
+		return used
 	}
 
 	// Initial setup on component mount
 	onMount(() => {
 		shuffledGameData = shuffleArray([...gameData])
 		allPossibleParentCombinations = shuffleArray([...allPossibleParentCombinations])
+		
+		// If player has already submitted, mark as submitted
+		if (player.submitted_guesses) {
+			gameSubmitted = true
+			submissionStatus = 'You have already submitted your guesses!'
+			loadPreviousGuesses()
+		}
 	})
+
+	async function loadPreviousGuesses() {
+		if (!player.submitted_guesses) return
+
+		const { data: guesses, error } = await supabase
+			.from('guesses')
+			.select('*')
+			.eq('player_id', player.id)
+
+		if (!error && guesses) {
+			// Reconstruct the matches from the saved guesses
+			const reconstructedMatches = {}
+			
+			guesses.forEach(guess => {
+				const babyData = shuffledGameData[guess.baby_index]
+				if (babyData) {
+					// Find the matching combo from the couple name
+					const combo = allPossibleParentCombinations.find(c => 
+						`${c.mom} & ${c.dad}` === guess.couple_name
+					)
+					if (combo) {
+						reconstructedMatches[babyData.babyId] = combo
+					}
+				}
+			})
+			
+			currentMatches = reconstructedMatches
+		}
+	}
 
 	// --- Submission Logic ---
 	async function handleSubmit() {
@@ -330,6 +392,13 @@
 					<h4 class="text-lg font-semibold text-rose-700 mb-2">Baby {shuffledGameData.indexOf(baby) + 1}</h4>
 					<img src={baby.babyImage} alt={`Baby ${shuffledGameData.indexOf(baby) + 1}`} class="baby-image">
 
+					<!-- Debug info -->
+					<div class="text-xs text-gray-400 mb-1">
+						Match: {currentMatches[baby.babyId] ? 'YES' : 'NO'} | 
+						Baby: {baby.babyId} |
+						Keys: {Object.keys(currentMatches).join(', ')}
+					</div>
+					
 					{#if currentMatches[baby.babyId]}
 						<div class="dropped-parent-card rounded-lg p-3 flex flex-col items-center justify-center" data-combo-id={currentMatches[baby.babyId].id}>
 							<div class="celebrity-images-wrapper">
@@ -337,7 +406,7 @@
 								<img src={celebrityImages[currentMatches[baby.babyId].dad]} alt={currentMatches[baby.babyId].dad} class="celebrity-image">
 							</div>
 							<span class="names-span">{currentMatches[baby.babyId].mom} & {currentMatches[baby.babyId].dad}</span>
-							<button class="undo-button" onclick={() => undoMatch(baby.babyId, currentMatches[baby.babyId].id)}>X</button>
+							<button class="undo-button" onclick={(e) => { e.stopPropagation(); undoMatch(baby.babyId, currentMatches[baby.babyId].id); }}>X</button>
 						</div>
 					{:else}
 						<p class="placeholder-text">Drag parent card here</p>
