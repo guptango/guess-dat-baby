@@ -40,26 +40,26 @@
 	}
 </script>
 
-<div class="bg-white rounded-lg shadow-lg p-6 text-center">
-	<h2 class="text-2xl font-semibold text-rose-700 mb-4">Welcome, {player.name}!</h2>
+<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-baby-blue-100">
+	<h2 class="text-3xl font-party text-baby-blue-700 mb-6">🎉 Welcome, {player.name}! 👋</h2>
 	
-	<div class="mb-6">
-		<p class="text-gray-600 mb-2">You're in room:</p>
-		<div class="text-4xl font-bold text-rose-500 bg-rose-50 rounded-lg py-3 px-6 inline-block">
+	<div class="mb-8">
+		<p class="text-gray-600 font-friendly mb-3">You're in room:</p>
+		<div class="text-5xl font-party text-baby-pink-600 bg-baby-pink-50 rounded-xl py-4 px-8 inline-block border-2 border-baby-pink-200">
 			{room.code}
 		</div>
 	</div>
 
-	<div class="mb-6">
-		<h3 class="text-lg font-semibold text-rose-700 mb-4">Players in Lobby ({players.length})</h3>
+	<div class="mb-8">
+		<h3 class="text-xl font-friendly font-semibold text-baby-blue-700 mb-6">👥 Players in Lobby ({players.length})</h3>
 		{#if players.length === 0}
-			<p class="text-gray-500 italic">Loading players...</p>
+			<p class="text-gray-500 italic font-friendly">Loading players...</p>
 		{:else}
-			<div class="space-y-2">
+			<div class="space-y-3">
 				{#each players as p}
-					<div class="bg-rose-50 rounded-lg p-3 {p.id === player.id ? 'ring-2 ring-rose-300' : ''}">
-						<p class="font-semibold text-rose-700">
-							{p.name} {p.id === player.id ? '(You)' : ''}
+					<div class="bg-mint-50 rounded-xl p-4 transition-all duration-200 {p.id === player.id ? 'ring-2 ring-baby-pink-400 bg-baby-pink-50' : 'hover:bg-mint-100'}">
+						<p class="font-friendly font-semibold text-baby-blue-700">
+							{p.id === player.id ? '⭐' : '👤'} {p.name} {p.id === player.id ? '(You)' : ''}
 						</p>
 					</div>
 				{/each}
@@ -67,7 +67,8 @@
 		{/if}
 	</div>
 	
-	<div class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-		<p class="text-yellow-800">Waiting for the host to start the game...</p>
+	<div class="bg-sunshine-50 border-2 border-sunshine-200 rounded-xl p-6">
+		<p class="text-sunshine-800 font-friendly font-medium">⏳ Waiting for the host to start the game...</p>
+		<p class="text-sunshine-600 text-sm font-friendly mt-2">Get ready to guess some adorable babies! 🍼</p>
 	</div>
 </div>

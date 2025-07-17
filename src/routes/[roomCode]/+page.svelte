@@ -125,46 +125,51 @@
 </script>
 
 <div class="max-w-7xl mx-auto p-6">
-	<h1 class="text-3xl font-bold text-center mb-8 text-rose-700">Room: {roomCode.toUpperCase()}</h1>
+	<h1 class="text-4xl font-party text-center mb-8 text-baby-blue-700">🏠 Room: {roomCode.toUpperCase()}</h1>
 	
 	{#if loading}
-		<div class="bg-white rounded-lg shadow-lg p-6 text-center">
-			<p class="text-lg text-gray-600">Loading...</p>
+		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-baby-blue-100">
+			<p class="text-lg text-gray-600 font-friendly">✨ Loading...</p>
 		</div>
 	{:else}
 		{#if player && localStorage.getItem(`gamePlayer_${roomCode}`)}
-			<div class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 text-center">
-				<p class="text-blue-800">👋 Welcome back, {player.name}!</p>
+			<div class="bg-baby-blue-50 border-2 border-baby-blue-200 rounded-xl p-4 mb-6 text-center">
+				<p class="text-baby-blue-800 font-friendly font-medium">👋 Welcome back, {player.name}!</p>
 			</div>
 		{/if}
 
 		{#if !player && room}
-		<div class="bg-white rounded-lg shadow-lg p-6">
+		<div class="bg-white rounded-xl shadow-lg p-8 border-2 border-baby-pink-100">
+			<div class="text-center mb-8">
+				<h2 class="text-2xl font-party text-baby-pink-600 mb-3">🎮 Join the Fun!</h2>
+				<p class="text-gray-600 font-friendly">Enter your name to start guessing babies!</p>
+			</div>
+			
 			<div class="mb-6">
-				<label for="playerName" class="block text-sm font-medium text-gray-700 mb-2">
-					Your Name
+				<label for="playerName" class="block text-sm font-friendly font-medium text-baby-blue-700 mb-3">
+					👤 Your Name
 				</label>
 				<input
 					id="playerName"
 					type="text"
 					bind:value={playerName}
 					placeholder="Enter your name"
-					class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+					class="w-full px-4 py-3 border-2 border-baby-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-baby-pink-400 focus:border-baby-pink-400 font-friendly"
 				/>
 			</div>
 
 			{#if errorMessage}
-				<div class="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
-					<p class="text-red-600 text-sm">{errorMessage}</p>
+				<div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6">
+					<p class="text-red-600 text-sm font-friendly">❌ {errorMessage}</p>
 				</div>
 			{/if}
 
 			<button
-				class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+				class="w-full bg-baby-pink-500 hover:bg-baby-pink-600 text-white font-friendly font-bold py-4 px-6 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg"
 				disabled={loading}
 				onclick={handleJoin}
 			>
-				{loading ? 'Joining...' : 'Join Game'}
+				{loading ? '⏳ Joining...' : '🚀 Join Game'}
 			</button>
 		</div>
 	{:else if gameState === GAME_STATES.LOBBY}
@@ -172,23 +177,25 @@
 	{:else if gameState === GAME_STATES.GUESSING}
 		<PlayerGame {room} {player} />
 	{:else if gameState === GAME_STATES.REVEAL}
-		<div class="bg-white rounded-lg shadow-lg p-6 text-center">
-			<h2 class="text-2xl font-semibold text-rose-700 mb-4">Reveal Phase</h2>
-			<p class="text-gray-600">Watch the host screen for the reveal!</p>
+		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-sunshine-200">
+			<h2 class="text-3xl font-party text-sunshine-700 mb-6">🎉 Reveal Phase</h2>
+			<p class="text-gray-600 font-friendly text-lg">Watch the host screen for the big reveal! 👀</p>
+			<p class="text-sunshine-600 font-friendly text-sm mt-4">Find out how well you guessed those adorable babies! 🍼</p>
 		</div>
 	{:else if gameState === GAME_STATES.RESULTS}
-		<div class="bg-white rounded-lg shadow-lg p-6 text-center">
-			<h2 class="text-2xl font-semibold text-rose-700 mb-4">Results</h2>
-			<p class="text-gray-600">Check the host screen for final results!</p>
+		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-baby-blue-200">
+			<h2 class="text-3xl font-party text-baby-blue-700 mb-6">🏆 Final Results</h2>
+			<p class="text-gray-600 font-friendly text-lg">Check the host screen for final results! 📊</p>
+			<p class="text-baby-blue-600 font-friendly text-sm mt-4">Great job playing! Hope you had fun! 🎊</p>
 		</div>
 	{/if}
 	
 		{#if errorMessage && !room}
-			<div class="bg-white rounded-lg shadow-lg p-6 text-center">
-				<h2 class="text-2xl font-semibold text-red-700 mb-4">Oops!</h2>
-				<p class="text-red-600 mb-4">{errorMessage}</p>
-				<a href="/host" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded">
-					Create New Room
+			<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-red-200">
+				<h2 class="text-2xl font-party text-red-600 mb-6">😵 Oops!</h2>
+				<p class="text-red-600 mb-6 font-friendly">{errorMessage}</p>
+				<a href="/host" class="bg-baby-pink-500 hover:bg-baby-pink-600 text-white font-friendly font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+					🎉 Create New Room
 				</a>
 			</div>
 		{/if}

@@ -1,2 +1,179 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Baby Shower Color Palette */
+    --color-baby-blue-50: 240 249 255;
+    --color-baby-blue-100: 224 242 254;
+    --color-baby-blue-200: 186 230 253;
+    --color-baby-blue-300: 125 211 252;
+    --color-baby-blue-400: 56 189 248;
+    --color-baby-blue-500: 14 165 233;
+    --color-baby-blue-600: 2 132 199;
+    --color-baby-blue-700: 3 105 161;
+    --color-baby-blue-800: 7 89 133;
+    --color-baby-blue-900: 12 74 110;
+
+    --color-baby-pink-50: 253 242 248;
+    --color-baby-pink-100: 252 231 243;
+    --color-baby-pink-200: 251 207 232;
+    --color-baby-pink-300: 249 168 212;
+    --color-baby-pink-400: 244 114 182;
+    --color-baby-pink-500: 236 72 153;
+    --color-baby-pink-600: 219 39 119;
+    --color-baby-pink-700: 190 24 93;
+    --color-baby-pink-800: 157 23 77;
+    --color-baby-pink-900: 131 24 67;
+
+    --color-mint-50: 240 253 250;
+    --color-mint-100: 204 251 241;
+    --color-mint-200: 153 246 228;
+    --color-mint-300: 94 234 212;
+    --color-mint-400: 45 212 191;
+    --color-mint-500: 20 184 166;
+    --color-mint-600: 13 148 136;
+    --color-mint-700: 15 118 110;
+    --color-mint-800: 17 94 89;
+    --color-mint-900: 19 78 74;
+
+    --color-sunshine-50: 255 251 235;
+    --color-sunshine-100: 254 243 199;
+    --color-sunshine-200: 253 230 138;
+    --color-sunshine-300: 252 211 77;
+    --color-sunshine-400: 251 191 36;
+    --color-sunshine-500: 245 158 11;
+    --color-sunshine-600: 217 119 6;
+    --color-sunshine-700: 180 83 9;
+    --color-sunshine-800: 146 64 14;
+    --color-sunshine-900: 120 53 15;
+  }
+}
+
+@layer utilities {
+  /* Typography Classes */
+  .font-party {
+    font-family: 'Fredoka One', cursive;
+  }
+  
+  .font-friendly {
+    font-family: 'Quicksand', sans-serif;
+  }
+  
+  /* Custom Color Classes */
+  .text-baby-blue-50 { color: rgb(var(--color-baby-blue-50)); }
+  .text-baby-blue-100 { color: rgb(var(--color-baby-blue-100)); }
+  .text-baby-blue-200 { color: rgb(var(--color-baby-blue-200)); }
+  .text-baby-blue-300 { color: rgb(var(--color-baby-blue-300)); }
+  .text-baby-blue-400 { color: rgb(var(--color-baby-blue-400)); }
+  .text-baby-blue-500 { color: rgb(var(--color-baby-blue-500)); }
+  .text-baby-blue-600 { color: rgb(var(--color-baby-blue-600)); }
+  .text-baby-blue-700 { color: rgb(var(--color-baby-blue-700)); }
+  .text-baby-blue-800 { color: rgb(var(--color-baby-blue-800)); }
+  .text-baby-blue-900 { color: rgb(var(--color-baby-blue-900)); }
+
+  .text-baby-pink-50 { color: rgb(var(--color-baby-pink-50)); }
+  .text-baby-pink-100 { color: rgb(var(--color-baby-pink-100)); }
+  .text-baby-pink-200 { color: rgb(var(--color-baby-pink-200)); }
+  .text-baby-pink-300 { color: rgb(var(--color-baby-pink-300)); }
+  .text-baby-pink-400 { color: rgb(var(--color-baby-pink-400)); }
+  .text-baby-pink-500 { color: rgb(var(--color-baby-pink-500)); }
+  .text-baby-pink-600 { color: rgb(var(--color-baby-pink-600)); }
+  .text-baby-pink-700 { color: rgb(var(--color-baby-pink-700)); }
+  .text-baby-pink-800 { color: rgb(var(--color-baby-pink-800)); }
+  .text-baby-pink-900 { color: rgb(var(--color-baby-pink-900)); }
+
+  .text-mint-50 { color: rgb(var(--color-mint-50)); }
+  .text-mint-100 { color: rgb(var(--color-mint-100)); }
+  .text-mint-200 { color: rgb(var(--color-mint-200)); }
+  .text-mint-300 { color: rgb(var(--color-mint-300)); }
+  .text-mint-400 { color: rgb(var(--color-mint-400)); }
+  .text-mint-500 { color: rgb(var(--color-mint-500)); }
+  .text-mint-600 { color: rgb(var(--color-mint-600)); }
+  .text-mint-700 { color: rgb(var(--color-mint-700)); }
+  .text-mint-800 { color: rgb(var(--color-mint-800)); }
+  .text-mint-900 { color: rgb(var(--color-mint-900)); }
+
+  .text-sunshine-50 { color: rgb(var(--color-sunshine-50)); }
+  .text-sunshine-100 { color: rgb(var(--color-sunshine-100)); }
+  .text-sunshine-200 { color: rgb(var(--color-sunshine-200)); }
+  .text-sunshine-300 { color: rgb(var(--color-sunshine-300)); }
+  .text-sunshine-400 { color: rgb(var(--color-sunshine-400)); }
+  .text-sunshine-500 { color: rgb(var(--color-sunshine-500)); }
+  .text-sunshine-600 { color: rgb(var(--color-sunshine-600)); }
+  .text-sunshine-700 { color: rgb(var(--color-sunshine-700)); }
+  .text-sunshine-800 { color: rgb(var(--color-sunshine-800)); }
+  .text-sunshine-900 { color: rgb(var(--color-sunshine-900)); }
+
+  /* Background Colors */
+  .bg-baby-blue-50 { background-color: rgb(var(--color-baby-blue-50)); }
+  .bg-baby-blue-100 { background-color: rgb(var(--color-baby-blue-100)); }
+  .bg-baby-blue-200 { background-color: rgb(var(--color-baby-blue-200)); }
+  .bg-baby-blue-300 { background-color: rgb(var(--color-baby-blue-300)); }
+  .bg-baby-blue-400 { background-color: rgb(var(--color-baby-blue-400)); }
+  .bg-baby-blue-500 { background-color: rgb(var(--color-baby-blue-500)); }
+  .bg-baby-blue-600 { background-color: rgb(var(--color-baby-blue-600)); }
+  .bg-baby-blue-700 { background-color: rgb(var(--color-baby-blue-700)); }
+  .bg-baby-blue-800 { background-color: rgb(var(--color-baby-blue-800)); }
+  .bg-baby-blue-900 { background-color: rgb(var(--color-baby-blue-900)); }
+
+  .bg-baby-pink-50 { background-color: rgb(var(--color-baby-pink-50)); }
+  .bg-baby-pink-100 { background-color: rgb(var(--color-baby-pink-100)); }
+  .bg-baby-pink-200 { background-color: rgb(var(--color-baby-pink-200)); }
+  .bg-baby-pink-300 { background-color: rgb(var(--color-baby-pink-300)); }
+  .bg-baby-pink-400 { background-color: rgb(var(--color-baby-pink-400)); }
+  .bg-baby-pink-500 { background-color: rgb(var(--color-baby-pink-500)); }
+  .bg-baby-pink-600 { background-color: rgb(var(--color-baby-pink-600)); }
+  .bg-baby-pink-700 { background-color: rgb(var(--color-baby-pink-700)); }
+  .bg-baby-pink-800 { background-color: rgb(var(--color-baby-pink-800)); }
+  .bg-baby-pink-900 { background-color: rgb(var(--color-baby-pink-900)); }
+
+  .bg-mint-50 { background-color: rgb(var(--color-mint-50)); }
+  .bg-mint-100 { background-color: rgb(var(--color-mint-100)); }
+  .bg-mint-200 { background-color: rgb(var(--color-mint-200)); }
+  .bg-mint-300 { background-color: rgb(var(--color-mint-300)); }
+  .bg-mint-400 { background-color: rgb(var(--color-mint-400)); }
+  .bg-mint-500 { background-color: rgb(var(--color-mint-500)); }
+  .bg-mint-600 { background-color: rgb(var(--color-mint-600)); }
+  .bg-mint-700 { background-color: rgb(var(--color-mint-700)); }
+  .bg-mint-800 { background-color: rgb(var(--color-mint-800)); }
+  .bg-mint-900 { background-color: rgb(var(--color-mint-900)); }
+
+  .bg-sunshine-50 { background-color: rgb(var(--color-sunshine-50)); }
+  .bg-sunshine-100 { background-color: rgb(var(--color-sunshine-100)); }
+  .bg-sunshine-200 { background-color: rgb(var(--color-sunshine-200)); }
+  .bg-sunshine-300 { background-color: rgb(var(--color-sunshine-300)); }
+  .bg-sunshine-400 { background-color: rgb(var(--color-sunshine-400)); }
+  .bg-sunshine-500 { background-color: rgb(var(--color-sunshine-500)); }
+  .bg-sunshine-600 { background-color: rgb(var(--color-sunshine-600)); }
+  .bg-sunshine-700 { background-color: rgb(var(--color-sunshine-700)); }
+  .bg-sunshine-800 { background-color: rgb(var(--color-sunshine-800)); }
+  .bg-sunshine-900 { background-color: rgb(var(--color-sunshine-900)); }
+
+  /* Border Colors */
+  .border-baby-blue-200 { border-color: rgb(var(--color-baby-blue-200)); }
+  .border-baby-blue-300 { border-color: rgb(var(--color-baby-blue-300)); }
+  .border-baby-blue-400 { border-color: rgb(var(--color-baby-blue-400)); }
+  .border-baby-blue-500 { border-color: rgb(var(--color-baby-blue-500)); }
+  .border-baby-blue-600 { border-color: rgb(var(--color-baby-blue-600)); }
+
+  .border-baby-pink-200 { border-color: rgb(var(--color-baby-pink-200)); }
+  .border-baby-pink-300 { border-color: rgb(var(--color-baby-pink-300)); }
+  .border-baby-pink-400 { border-color: rgb(var(--color-baby-pink-400)); }
+  .border-baby-pink-500 { border-color: rgb(var(--color-baby-pink-500)); }
+  .border-baby-pink-600 { border-color: rgb(var(--color-baby-pink-600)); }
+
+  .border-mint-200 { border-color: rgb(var(--color-mint-200)); }
+  .border-mint-300 { border-color: rgb(var(--color-mint-300)); }
+  .border-mint-400 { border-color: rgb(var(--color-mint-400)); }
+  .border-mint-500 { border-color: rgb(var(--color-mint-500)); }
+  .border-mint-600 { border-color: rgb(var(--color-mint-600)); }
+
+  .border-sunshine-200 { border-color: rgb(var(--color-sunshine-200)); }
+  .border-sunshine-300 { border-color: rgb(var(--color-sunshine-300)); }
+  .border-sunshine-400 { border-color: rgb(var(--color-sunshine-400)); }
+  .border-sunshine-500 { border-color: rgb(var(--color-sunshine-500)); }
+  .border-sunshine-600 { border-color: rgb(var(--color-sunshine-600)); }
+}

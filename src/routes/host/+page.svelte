@@ -81,25 +81,25 @@
 </script>
 
 <div class="max-w-4xl mx-auto p-6">
-	<h1 class="text-3xl font-bold text-center mb-8 text-rose-700">Host Dashboard</h1>
+	<h1 class="text-4xl font-party text-center mb-8 text-baby-blue-700">🎮 Host Dashboard 🎯</h1>
 
 	<!-- Create New Room Button -->
 	<div class="text-center mb-8">
 		<button 
-			class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+			class="bg-baby-pink-500 hover:bg-baby-pink-600 text-white font-friendly font-bold py-4 px-8 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg"
 			disabled={creatingRoom}
 			onclick={createNewRoom}
 		>
-			{creatingRoom ? 'Creating Room...' : '+ Create New Room'}
+			{creatingRoom ? '✨ Creating Room...' : '🎉 Create New Room'}
 		</button>
 	</div>
 
 	<!-- Existing Rooms -->
-	<div class="bg-white rounded-lg shadow-lg p-6">
+	<div class="bg-white rounded-xl shadow-lg p-6 border-2 border-baby-blue-100">
 		<div class="flex justify-between items-center mb-6">
-			<h2 class="text-2xl font-semibold text-rose-700">Your Rooms</h2>
+			<h2 class="text-2xl font-friendly font-semibold text-baby-blue-700">🏠 Your Rooms</h2>
 			<button 
-				class="text-rose-600 hover:text-rose-700 text-sm font-medium"
+				class="text-baby-pink-600 hover:text-baby-pink-700 text-sm font-friendly font-medium px-3 py-2 rounded-lg hover:bg-baby-pink-50 transition-colors"
 				onclick={loadExistingRooms}
 				disabled={loading}
 			>
@@ -119,20 +119,20 @@
 		{:else}
 			<div class="space-y-4">
 				{#each existingRooms as room}
-					<div class="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+					<div class="border-2 border-mint-200 rounded-xl p-5 hover:bg-mint-50 transition-all duration-200 hover:shadow-md">
 						<div class="flex justify-between items-start">
 							<div class="flex-1">
 								<div class="flex items-center gap-3 mb-2">
-									<span class="text-2xl font-bold text-rose-600">{room.code}</span>
-									<span class="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded">
+									<span class="text-2xl font-party text-baby-blue-600">{room.code}</span>
+									<span class="text-sm bg-sunshine-100 text-sunshine-700 px-3 py-1 rounded-full font-friendly font-medium">
 										{getGameStateDisplay(room.game_state)}
 									</span>
-									<span class="text-xs text-gray-500">
+									<span class="text-xs text-gray-500 font-friendly">
 										{getTimeAgo(room.created_at)}
 									</span>
 								</div>
 								
-								<div class="flex items-center gap-4 text-sm text-gray-600">
+								<div class="flex items-center gap-4 text-sm text-gray-600 font-friendly">
 									<span>👥 {room.players?.[0]?.count || 0} players</span>
 									{#if room.game_state === GAME_STATES.REVEAL}
 										<span>🔍 Revealing baby {room.current_reveal_index + 1}/9</span>
@@ -143,12 +143,12 @@
 							<div class="flex gap-2">
 								<a 
 									href="/host/{room.code}"
-									class="bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium py-2 px-4 rounded"
+									class="bg-baby-blue-500 hover:bg-baby-blue-600 text-white text-sm font-friendly font-medium py-2 px-4 rounded-lg transition-colors"
 								>
-									Manage
+									🎮 Manage
 								</a>
 								<button 
-									class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-3 rounded"
+									class="bg-red-400 hover:bg-red-500 text-white text-sm font-friendly font-medium py-2 px-3 rounded-lg transition-colors"
 									onclick={() => deleteRoom(room.id, room.code)}
 									title="Delete Room"
 								>
