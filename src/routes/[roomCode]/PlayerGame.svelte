@@ -98,6 +98,12 @@
 			draggedItem.classList.remove('dragging')
 			draggedItem = null
 		}
+		
+		// Restore body scrolling (for non-touch events)
+		document.body.style.overflow = ''
+		document.body.style.position = ''
+		document.body.style.width = ''
+		
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 		currentDropTarget = null
 	}
@@ -179,7 +185,9 @@
 
 		if (!draggedClone) {
 			if (dx > dragThreshold || dy > dragThreshold) {
-				if (dx > dy) {
+				// Only start drag if horizontal movement is significantly more than vertical
+				// This allows vertical scrolling to work normally
+				if (dx > dy && dx > dragThreshold * 2) {
 					event.preventDefault()
 					draggedClone = createDragClone(draggedItem)
 					// Position the clone at the current finger position immediately
@@ -187,6 +195,11 @@
 					draggedClone.style.top = `${currentY}px`
 					draggedClone.style.transform = 'translate(-50%, -50%)'
 					draggedItem.classList.add('dragging')
+					
+					// Prevent body scrolling during drag
+					document.body.style.overflow = 'hidden'
+					document.body.style.position = 'fixed'
+					document.body.style.width = '100%'
 				} else {
 					draggedItem = null
 					return
@@ -195,6 +208,7 @@
 				return
 			}
 		} else {
+			// Only prevent default when we're actively dragging
 			event.preventDefault()
 		}
 
@@ -227,6 +241,11 @@
 			draggedClone.remove()
 			draggedClone = null
 		}
+
+		// Restore body scrolling
+		document.body.style.overflow = ''
+		document.body.style.position = ''
+		document.body.style.width = ''
 
 		draggedItem.classList.remove('dragging')
 
