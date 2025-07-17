@@ -661,27 +661,36 @@
 		width: 100%;
 		align-items: center;
 		height: 100%;
-		overflow-y: auto;
-		padding: 10px;
+		overflow-y: scroll; /* Always show scrollbar */
+		padding: 10px 20px 10px 10px; /* Extra padding on right for scrollbar */
 		border-radius: 8px;
 		background-color: #ffffff;
 		border: 1px solid #fdeff4;
 		box-sizing: border-box;
 		overscroll-behavior: contain;
+		scrollbar-gutter: stable; /* Reserve space for scrollbar */
 	}
 	.parents-list::-webkit-scrollbar {
-		width: 8px;
+		width: 12px;
 	}
 	.parents-list::-webkit-scrollbar-track {
 		background: #fdf2f8;
-		border-radius: 10px;
+		border-radius: 15px;
+		border: 2px solid #f9d8e5;
+		margin: 8px 0;
 	}
 	.parents-list::-webkit-scrollbar-thumb {
-		background: #f9d8e5;
-		border-radius: 10px;
+		background: linear-gradient(180deg, #f29ecf 0%, #d9669e 100%);
+		border-radius: 15px;
+		border: 2px solid #fdf2f8;
+		box-shadow: 0 2px 4px rgba(217, 102, 158, 0.3);
 	}
 	.parents-list::-webkit-scrollbar-thumb:hover {
-		background: #f29ecf;
+		background: linear-gradient(180deg, #d9669e 0%, #c45a8e 100%);
+		box-shadow: 0 3px 6px rgba(217, 102, 158, 0.4);
+	}
+	.parents-list::-webkit-scrollbar-thumb:active {
+		background: linear-gradient(180deg, #c45a8e 0%, #b84d7e 100%);
 	}
 	@media (min-width: 768px) {
 		.parents-list {
