@@ -359,7 +359,7 @@
 
 		if (success) {
 			submissionStatus = 'Submitted successfully!'
-			showModal('Answers Submitted!', 'Thank you for playing! Wait for the host to start the reveal.')
+			showModal('🎉 Answers Submitted!', 'Thank you for playing! Wait for the host to start the reveal. 🍼')
 		} else {
 			submissionStatus = 'Submission failed. Please try again.'
 			gameSubmitted = false
@@ -367,20 +367,20 @@
 	}
 </script>
 
-<div class="mb-4 text-center">
-	<h2 class="text-2xl font-semibold text-rose-700">Make Your Guesses!</h2>
-	<p class="text-gray-600">Drag parent combinations to match with baby pictures</p>
+<div class="mb-6 text-center">
+	<h2 class="text-3xl font-party text-baby-blue-700">🍼 Make Your Guesses! 👶</h2>
+	<p class="text-gray-600 font-friendly">Drag parent combinations to match with baby pictures</p>
 </div>
 
 {#if submissionStatus}
-	<div class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 text-center">
-		<p class="text-blue-800">{submissionStatus}</p>
+	<div class="bg-baby-blue-50 border-2 border-baby-blue-200 rounded-xl p-4 mb-6 text-center">
+		<p class="text-baby-blue-800 font-friendly font-medium">✨ {submissionStatus}</p>
 	</div>
 {/if}
 
 <div class="game-content">
 	<div class="babies-section">
-		<h3 class="text-xl font-semibold text-rose-700 mb-6">Baby Pictures</h3>
+		<h3 class="text-xl font-friendly font-semibold text-baby-pink-700 mb-6">👶 Baby Pictures</h3>
 		<div id="babies-container" class="babies-grid">
 			{#each shuffledGameData as baby (baby.babyId)}
 				<div
@@ -412,7 +412,7 @@
 	</div>
 
 	<div class="parents-section">
-		<h3 class="text-xl font-semibold text-rose-700 mb-6">Parent Combinations</h3>
+		<h3 class="text-xl font-friendly font-semibold text-baby-blue-700 mb-6">👨‍👩‍👧‍👦 Parent Combinations</h3>
 		<div id="parents-container" class="parents-list">
 			{#each allPossibleParentCombinations as combo (combo.id)}
 				<div
@@ -440,11 +440,11 @@
 
 <button 
 	id="submit-button" 
-	class="action-button mt-8" 
+	class="action-button mt-8 font-friendly" 
 	disabled={Object.keys(currentMatches).length !== shuffledGameData.length || gameSubmitted} 
 	onclick={handleSubmit}
 >
-	Submit All Answers
+	🚀 Submit All Answers
 </button>
 
 <!-- Custom Modal for messages -->
