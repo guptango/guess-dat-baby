@@ -211,11 +211,12 @@
 				return
 			}
 
+			// Hide answer immediately when loading new baby
+			showingAnswer = false
 			currentBabyData = gameData[currentRevealIndex]
 			const guesses = await getGuessesForReveal(room.id, currentRevealIndex)
 			// Deep copy to avoid mutation issues with Supabase data
 			currentGuesses = JSON.parse(JSON.stringify(guesses || []))
-			showingAnswer = false
 		} catch (error) {
 			console.error('Error in loadCurrentReveal:', error)
 		}

@@ -110,7 +110,6 @@
 		}
 		
 		// Remove all scroll prevention listeners
-		document.removeEventListener('touchmove', preventScroll, { capture: true })
 		document.removeEventListener('wheel', preventScroll, { capture: true })
 		document.removeEventListener('scroll', preventScroll, { capture: true })
 		window.removeEventListener('scroll', preventScroll, { capture: true })
@@ -232,8 +231,7 @@
 				document.body.style.overscrollBehavior = 'none'
 				document.documentElement.style.overscrollBehavior = 'none'
 				
-				// Add comprehensive scroll prevention
-				document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
+				// Add scroll prevention (but not touchmove to avoid interfering with drag)
 				document.addEventListener('wheel', preventScroll, { passive: false, capture: true })
 				document.addEventListener('scroll', preventScroll, { passive: false, capture: true })
 				window.addEventListener('scroll', preventScroll, { passive: false, capture: true })
@@ -276,7 +274,6 @@
 		}
 
 		// Remove all scroll prevention listeners
-		document.removeEventListener('touchmove', preventScroll, { capture: true })
 		document.removeEventListener('wheel', preventScroll, { capture: true })
 		document.removeEventListener('scroll', preventScroll, { capture: true })
 		window.removeEventListener('scroll', preventScroll, { capture: true })
