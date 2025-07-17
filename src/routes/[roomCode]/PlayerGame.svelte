@@ -397,8 +397,8 @@
 					{#if currentMatches[baby.babyId]}
 						<div class="dropped-parent-card rounded-lg p-3 flex flex-col items-center justify-center" data-combo-id={currentMatches[baby.babyId].id}>
 							<div class="celebrity-images-wrapper">
-								<img src={celebrityImages[currentMatches[baby.babyId].mom]} alt={currentMatches[baby.babyId].mom} class="celebrity-image">
-								<img src={celebrityImages[currentMatches[baby.babyId].dad]} alt={currentMatches[baby.babyId].dad} class="celebrity-image">
+								<img src={celebrityImages[currentMatches[baby.babyId].mom]} alt={currentMatches[baby.babyId].mom} class="celebrity-image" draggable="false">
+								<img src={celebrityImages[currentMatches[baby.babyId].dad]} alt={currentMatches[baby.babyId].dad} class="celebrity-image" draggable="false">
 							</div>
 							<span class="names-span">{currentMatches[baby.babyId].mom} & {currentMatches[baby.babyId].dad}</span>
 							<button class="undo-button" onclick={(e) => { e.stopPropagation(); undoMatch(baby.babyId, currentMatches[baby.babyId].id); }}>X</button>
@@ -428,8 +428,8 @@
 					class:hidden={currentMatches[shuffledGameData.find(baby => currentMatches[baby.babyId] === combo)?.babyId]}
 				>
 					<div class="celebrity-images-wrapper">
-						<img src={celebrityImages[combo.mom]} alt={combo.mom} class="celebrity-image">
-						<img src={celebrityImages[combo.dad]} alt={combo.dad} class="celebrity-image">
+						<img src={celebrityImages[combo.mom]} alt={combo.mom} class="celebrity-image" draggable="false">
+						<img src={celebrityImages[combo.dad]} alt={combo.dad} class="celebrity-image" draggable="false">
 					</div>
 					<span class="names-span">{combo.mom} & {combo.dad}</span>
 				</div>
