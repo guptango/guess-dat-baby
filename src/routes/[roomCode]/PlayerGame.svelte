@@ -65,6 +65,8 @@
 		// Only prevent scrolling if we're currently dragging
 		if (draggedClone) {
 			event.preventDefault()
+			event.stopPropagation()
+			return false
 		}
 	}
 
@@ -107,15 +109,22 @@
 			draggedItem = null
 		}
 		
-		// Remove scroll prevention listeners
-		document.removeEventListener('touchmove', preventScroll)
-		document.removeEventListener('wheel', preventScroll)
+		// Remove all scroll prevention listeners
+		document.removeEventListener('touchmove', preventScroll, { capture: true })
+		document.removeEventListener('wheel', preventScroll, { capture: true })
+		document.removeEventListener('scroll', preventScroll, { capture: true })
+		window.removeEventListener('scroll', preventScroll, { capture: true })
 		
 		// Restore body scrolling and scroll position (for non-touch events)
 		document.body.style.overflow = ''
 		document.body.style.position = ''
 		document.body.style.top = ''
 		document.body.style.width = ''
+		
+		// Restore overscroll behavior (re-enable pull-to-refresh)
+		document.body.style.overscrollBehavior = ''
+		document.documentElement.style.overscrollBehavior = ''
+		
 		if (savedScrollPosition > 0) {
 			window.scrollTo(0, savedScrollPosition)
 			savedScrollPosition = 0
@@ -219,9 +228,15 @@
 				document.body.style.top = `-${savedScrollPosition}px`
 				document.body.style.width = '100%'
 				
-				// Also prevent scroll events on the document
-				document.addEventListener('touchmove', preventScroll, { passive: false })
-				document.addEventListener('wheel', preventScroll, { passive: false })
+				// Disable pull-to-refresh
+				document.body.style.overscrollBehavior = 'none'
+				document.documentElement.style.overscrollBehavior = 'none'
+				
+				// Add comprehensive scroll prevention
+				document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
+				document.addEventListener('wheel', preventScroll, { passive: false, capture: true })
+				document.addEventListener('scroll', preventScroll, { passive: false, capture: true })
+				window.addEventListener('scroll', preventScroll, { passive: false, capture: true })
 			} else {
 				return
 			}
@@ -260,15 +275,22 @@
 			draggedClone = null
 		}
 
-		// Remove scroll prevention listeners
-		document.removeEventListener('touchmove', preventScroll)
-		document.removeEventListener('wheel', preventScroll)
+		// Remove all scroll prevention listeners
+		document.removeEventListener('touchmove', preventScroll, { capture: true })
+		document.removeEventListener('wheel', preventScroll, { capture: true })
+		document.removeEventListener('scroll', preventScroll, { capture: true })
+		window.removeEventListener('scroll', preventScroll, { capture: true })
 		
 		// Restore body scrolling and scroll position
 		document.body.style.overflow = ''
 		document.body.style.position = ''
 		document.body.style.top = ''
 		document.body.style.width = ''
+		
+		// Restore overscroll behavior (re-enable pull-to-refresh)
+		document.body.style.overscrollBehavior = ''
+		document.documentElement.style.overscrollBehavior = ''
+		
 		window.scrollTo(0, savedScrollPosition)
 
 		draggedItem.classList.remove('dragging')
