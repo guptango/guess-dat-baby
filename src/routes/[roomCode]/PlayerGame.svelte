@@ -58,6 +58,7 @@
 	let currentDropTarget = null
 	let startX = 0
 	let startY = 0
+	let savedScrollPosition = 0
 	const dragThreshold = 10
 
 	function createDragClone(originalElement) {
@@ -99,10 +100,15 @@
 			draggedItem = null
 		}
 		
-		// Restore body scrolling (for non-touch events)
+		// Restore body scrolling and scroll position (for non-touch events)
 		document.body.style.overflow = ''
 		document.body.style.position = ''
+		document.body.style.top = ''
 		document.body.style.width = ''
+		if (savedScrollPosition > 0) {
+			window.scrollTo(0, savedScrollPosition)
+			savedScrollPosition = 0
+		}
 		
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 		currentDropTarget = null
@@ -193,9 +199,13 @@
 				draggedClone.style.transform = 'translate(-50%, -50%)'
 				draggedItem.classList.add('dragging')
 				
-				// Prevent body scrolling during drag
+				// Save current scroll position before preventing body scrolling
+				savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop
+				
+				// Prevent body scrolling during drag while maintaining scroll position
 				document.body.style.overflow = 'hidden'
 				document.body.style.position = 'fixed'
+				document.body.style.top = `-${savedScrollPosition}px`
 				document.body.style.width = '100%'
 			} else {
 				return
@@ -235,10 +245,12 @@
 			draggedClone = null
 		}
 
-		// Restore body scrolling
+		// Restore body scrolling and scroll position
 		document.body.style.overflow = ''
 		document.body.style.position = ''
+		document.body.style.top = ''
 		document.body.style.width = ''
+		window.scrollTo(0, savedScrollPosition)
 
 		draggedItem.classList.remove('dragging')
 
