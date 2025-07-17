@@ -669,9 +669,14 @@
 		box-sizing: border-box;
 		overscroll-behavior: contain;
 		scrollbar-gutter: stable; /* Reserve space for scrollbar */
+		
+		/* Firefox scrollbar styling */
+		scrollbar-width: thick;
+		scrollbar-color: rgb(242, 158, 207) rgb(253, 242, 248);
 	}
 	.parents-list::-webkit-scrollbar {
 		width: 12px;
+		-webkit-appearance: none; /* Override default appearance */
 	}
 	.parents-list::-webkit-scrollbar-track {
 		background: #fdf2f8;
@@ -695,6 +700,21 @@
 	@media (min-width: 768px) {
 		.parents-list {
 			gap: 15px;
+		}
+	}
+	
+	/* Mobile specific - force scrollbar visibility */
+	@media (max-width: 767px) {
+		.parents-list {
+			-webkit-overflow-scrolling: touch;
+		}
+		.parents-list::-webkit-scrollbar {
+			width: 14px; /* Slightly wider on mobile */
+			display: block !important;
+		}
+		.parents-list::-webkit-scrollbar-thumb {
+			background: #f29ecf !important;
+			border: 1px solid #fdf2f8 !important;
 		}
 	}
 	.parent-card {
