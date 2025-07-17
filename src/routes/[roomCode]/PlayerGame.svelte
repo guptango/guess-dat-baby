@@ -61,6 +61,13 @@
 	let savedScrollPosition = 0
 	const dragThreshold = 10
 
+	function preventScroll(event) {
+		// Only prevent scrolling if we're currently dragging
+		if (draggedClone) {
+			event.preventDefault()
+		}
+	}
+
 	function createDragClone(originalElement) {
 		const clone = originalElement.cloneNode(true)
 		clone.classList.add('touch-dragging-clone')
@@ -99,6 +106,10 @@
 			draggedItem.classList.remove('dragging')
 			draggedItem = null
 		}
+		
+		// Remove scroll prevention listeners
+		document.removeEventListener('touchmove', preventScroll)
+		document.removeEventListener('wheel', preventScroll)
 		
 		// Restore body scrolling and scroll position (for non-touch events)
 		document.body.style.overflow = ''
@@ -207,6 +218,10 @@
 				document.body.style.position = 'fixed'
 				document.body.style.top = `-${savedScrollPosition}px`
 				document.body.style.width = '100%'
+				
+				// Also prevent scroll events on the document
+				document.addEventListener('touchmove', preventScroll, { passive: false })
+				document.addEventListener('wheel', preventScroll, { passive: false })
 			} else {
 				return
 			}
@@ -245,6 +260,10 @@
 			draggedClone = null
 		}
 
+		// Remove scroll prevention listeners
+		document.removeEventListener('touchmove', preventScroll)
+		document.removeEventListener('wheel', preventScroll)
+		
 		// Restore body scrolling and scroll position
 		document.body.style.overflow = ''
 		document.body.style.position = ''
