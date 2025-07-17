@@ -59,10 +59,7 @@
 	let startX = 0
 	let startY = 0
 	let savedScrollPosition = 0
-	let holdTimer = null
-	let isDragReady = false
 	const dragThreshold = 10
-	const holdDuration = 500 // 500ms hold before drag activates
 
 	function preventScroll(event) {
 		// Only prevent scrolling if we're currently dragging
@@ -197,16 +194,6 @@
 			startY = touch.clientY
 			draggedItem = target
 			dragSourceParent = draggedItem.parentNode
-			isDragReady = false
-			
-			// Start hold timer - drag will only activate after holding
-			holdTimer = setTimeout(() => {
-				if (draggedItem) {
-					isDragReady = true
-					// Add visual feedback that drag is ready
-					draggedItem.classList.add('drag-ready')
-				}
-			}, holdDuration)
 		}
 	}
 
@@ -221,15 +208,7 @@
 		const dx = Math.abs(currentX - startX)
 		const dy = Math.abs(currentY - startY)
 
-		// If movement detected before hold timer completes, cancel drag and allow scrolling
-		if (!isDragReady && !draggedClone && (dx > dragThreshold || dy > dragThreshold)) {
-			clearTimeout(holdTimer)
-			draggedItem.classList.remove('drag-ready')
-			draggedItem = null
-			return // Allow normal scrolling
-		}
-
-		if (!draggedClone && isDragReady) {
+		if (!draggedClone) {
 			if (dx > dragThreshold || dy > dragThreshold) {
 				event.preventDefault()
 				draggedClone = createDragClone(draggedItem)
@@ -238,7 +217,6 @@
 				draggedClone.style.top = `${currentY}px`
 				draggedClone.style.transform = 'translate(-50%, -50%)'
 				draggedItem.classList.add('dragging')
-				draggedItem.classList.remove('drag-ready')
 				
 				// Save current scroll position before preventing body scrolling
 				savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop
@@ -260,11 +238,9 @@
 			} else {
 				return
 			}
-		} else if (draggedClone) {
+		} else {
 			// Only prevent default when we're actively dragging
 			event.preventDefault()
-		} else {
-			return // Allow scrolling if drag not ready
 		}
 
 		// Ensure proper positioning accounting for any viewport scaling
@@ -290,38 +266,33 @@
 	function handleTouchEnd(event) {
 		if (!draggedItem || gameSubmitted) return
 
-		// Clear hold timer and reset drag ready state
-		clearTimeout(holdTimer)
-		isDragReady = false
-
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 
 		if (draggedClone) {
 			draggedClone.remove()
 			draggedClone = null
-			
-			// Remove all scroll prevention listeners
-			document.removeEventListener('wheel', preventScroll, { capture: true })
-			document.removeEventListener('scroll', preventScroll, { capture: true })
-			window.removeEventListener('scroll', preventScroll, { capture: true })
-			
-			// Restore body scrolling and scroll position
-			document.body.style.overflow = ''
-			document.body.style.position = ''
-			document.body.style.top = ''
-			document.body.style.width = ''
-			
-			// Restore overscroll behavior (re-enable pull-to-refresh)
-			document.body.style.overscrollBehavior = ''
-			document.documentElement.style.overscrollBehavior = ''
-			
-			window.scrollTo(0, savedScrollPosition)
 		}
 
-		draggedItem.classList.remove('dragging')
-		draggedItem.classList.remove('drag-ready')
+		// Remove all scroll prevention listeners
+		document.removeEventListener('wheel', preventScroll, { capture: true })
+		document.removeEventListener('scroll', preventScroll, { capture: true })
+		window.removeEventListener('scroll', preventScroll, { capture: true })
+		
+		// Restore body scrolling and scroll position
+		document.body.style.overflow = ''
+		document.body.style.position = ''
+		document.body.style.top = ''
+		document.body.style.width = ''
+		
+		// Restore overscroll behavior (re-enable pull-to-refresh)
+		document.body.style.overscrollBehavior = ''
+		document.documentElement.style.overscrollBehavior = ''
+		
+		window.scrollTo(0, savedScrollPosition)
 
-		if (currentDropTarget && draggedClone) {
+		draggedItem.classList.remove('dragging')
+
+		if (currentDropTarget) {
 			const babyId = currentDropTarget.dataset.babyId
 			const comboId = draggedItem.dataset.comboId
 			if (currentMatches[babyId]) {
@@ -557,8 +528,6 @@
 		justify-content: space-around;
 		align-items: flex-start;
 		gap: 15px;
-		height: calc(100vh - 200px); /* Fit mobile screen, leaving space for header/button */
-		max-height: calc(100vh - 200px);
 	}
 	@media (min-width: 768px) {
 		.game-content {
@@ -577,8 +546,7 @@
 		flex-direction: column;
 		align-items: center;
 		min-width: 140px;
-		height: 100%;
-		overflow: hidden;
+		height: 800px;
 	}
 	.parents-section {
 		flex: 1;
@@ -591,12 +559,12 @@
 		flex-direction: column;
 		align-items: center;
 		min-width: 140px;
-		height: 100%;
-		overflow: hidden;
+		height: 800px;
 	}
 	@media (min-width: 768px) {
 		.babies-section, .parents-section {
 			padding: 15px;
+			height: 900px;
 		}
 	}
 
@@ -758,12 +726,6 @@
 	}
 	.parent-card.hidden {
 		display: none;
-	}
-	.parent-card.drag-ready {
-		background-color: #fbe0ec;
-		transform: scale(1.02);
-		box-shadow: 0 6px 16px rgba(217, 102, 158, 0.3);
-		border-color: #d9669e;
 	}
 
 	.baby-card .dropped-parent-card {
