@@ -276,13 +276,15 @@ export async function calculateAndUpdateScores(roomId: string, babyIndex: number
     }
   }
 
-  if (scoreUpdates.length > 0) {
+  // Update scores individually to avoid null constraint issues
+  for (const update of scoreUpdates) {
     const { error: updateError } = await supabase
       .from('players')
-      .upsert(scoreUpdates)
+      .update({ score: update.score })
+      .eq('id', update.id)
 
     if (updateError) {
-      console.error('Error updating scores:', updateError)
+      console.error('Error updating score for player:', update.id, updateError)
       return false
     }
   }
