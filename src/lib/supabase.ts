@@ -195,6 +195,63 @@ export async function updateGameState(roomId: string, gameState: string, revealI
   return true
 }
 
+export async function precomputeAllScores(roomId: string, correctAnswers: string[]) {
+  // Get all players in the room
+  const { data: players, error: playersError } = await supabase
+    .from('players')
+    .select('id, score')
+    .eq('room_id', roomId)
+
+  if (playersError) {
+    console.error('Error getting players for precompute:', playersError)
+    return false
+  }
+
+  // Get all guesses for all players
+  const { data: guesses, error: guessesError } = await supabase
+    .from('guesses')
+    .select('player_id, baby_index, couple_name')
+    .in('player_id', players.map(p => p.id))
+
+  if (guessesError) {
+    console.error('Error getting guesses for precompute:', guessesError)
+    return false
+  }
+
+  // Calculate final scores for each player
+  const finalScores = players.map(player => {
+    const playerGuesses = guesses.filter(g => g.player_id === player.id)
+    let totalScore = 0
+    
+    playerGuesses.forEach(guess => {
+      const correctAnswer = correctAnswers[guess.baby_index]
+      if (guess.couple_name === correctAnswer) {
+        totalScore += 1
+      }
+    })
+    
+    return {
+      id: player.id,
+      score: totalScore
+    }
+  })
+
+  // Update all player scores
+  for (const scoreUpdate of finalScores) {
+    const { error: updateError } = await supabase
+      .from('players')
+      .update({ score: scoreUpdate.score })
+      .eq('id', scoreUpdate.id)
+
+    if (updateError) {
+      console.error('Error updating final score for player:', scoreUpdate.id, updateError)
+      return false
+    }
+  }
+
+  return true
+}
+
 export async function getPlayersInRoom(roomId: string) {
   const { data, error } = await supabase
     .from('players')
