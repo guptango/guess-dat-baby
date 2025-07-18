@@ -157,6 +157,28 @@
 					{/each}
 				</div>
 			</div>
+
+			<!-- Highlight correct players -->
+			{#if groupedGuesses.length > 0}
+				{@const correctGroup = groupedGuesses.find(g => g.isCorrect)}
+				{#if correctGroup && correctGroup.players.length > 0}
+					<div class="bg-green-50 border-2 border-green-300 rounded-xl p-6 mb-8 text-center">
+						<h4 class="text-2xl font-party text-green-700 mb-4">✅ Players who got it right!</h4>
+						<div class="flex flex-wrap justify-center gap-3">
+							{#each correctGroup.players as player}
+								<span class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-lg font-friendly font-semibold border-2 border-green-400 shadow-md">
+									🎉 {player}
+								</span>
+							{/each}
+						</div>
+					</div>
+				{:else}
+					<div class="bg-gray-50 border-2 border-gray-300 rounded-xl p-6 mb-8 text-center">
+						<h4 class="text-2xl font-party text-gray-700 mb-4">😅 No one got this one right!</h4>
+						<p class="text-gray-600 font-friendly">Better luck on the next baby!</p>
+					</div>
+				{/if}
+			{/if}
 		{/if}
 
 		<!-- Note: Scores are hidden during reveal to prevent spoilers -->
