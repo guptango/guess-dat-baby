@@ -240,6 +240,24 @@
 		await updateGameState(room.id, GAME_STATES.REVEAL, nextIndex)
 	}
 
+	async function kickPlayer(playerId, playerName) {
+		if (!confirm(`Are you sure you want to kick ${playerName} from the game?`)) {
+			return
+		}
+
+		const { error } = await supabase
+			.from('players')
+			.delete()
+			.eq('id', playerId)
+
+		if (!error) {
+			await loadPlayers()
+		} else {
+			console.error('Error kicking player:', error)
+			alert('Failed to kick player. Please try again.')
+		}
+	}
+
 	// Effect to handle reveal state changes
 	$effect(() => {
 		if (gameState === GAME_STATES.REVEAL && room && typeof currentRevealIndex === 'number') {
@@ -290,7 +308,14 @@
 					{:else}
 						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 							{#each players as player}
-								<div class="bg-mint-50 rounded-xl p-5 text-center border-2 border-mint-200 hover:bg-mint-100 transition-colors">
+								<div class="bg-mint-50 rounded-xl p-5 text-center border-2 border-mint-200 hover:bg-mint-100 transition-colors relative">
+									<button 
+										class="absolute top-2 right-2 bg-red-400 hover:bg-red-500 text-white text-xs font-friendly font-medium py-1 px-2 rounded-full transition-colors"
+										onclick={() => kickPlayer(player.id, player.name)}
+										title="Kick Player"
+									>
+										✕
+									</button>
 									<p class="font-friendly font-semibold text-baby-blue-700">👤 {player.name}</p>
 									<p class="text-sm text-gray-600 font-friendly mt-2">
 										{player.submitted_guesses ? '✅ Submitted' : '⏳ Waiting...'}
@@ -323,6 +348,30 @@
 						</p>
 					</div>
 				</div>
+
+				<!-- Player Status During Guessing -->
+				{#if players.length > 0}
+					<div class="mb-8">
+						<h4 class="text-lg font-friendly font-semibold text-sunshine-700 mb-4 text-center">👥 Player Status</h4>
+						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+							{#each players as player}
+								<div class="bg-sunshine-50 rounded-lg p-4 text-center border-2 border-sunshine-200 hover:bg-sunshine-100 transition-colors relative">
+									<button 
+										class="absolute top-2 right-2 bg-red-400 hover:bg-red-500 text-white text-xs font-friendly font-medium py-1 px-2 rounded-full transition-colors"
+										onclick={() => kickPlayer(player.id, player.name)}
+										title="Kick Player"
+									>
+										✕
+									</button>
+									<p class="font-friendly font-semibold text-sunshine-700">👤 {player.name}</p>
+									<p class="text-sm text-gray-600 font-friendly mt-2">
+										{player.submitted_guesses ? '✅ Submitted' : '⏳ Guessing...'}
+									</p>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
 				
 				<div class="text-center">
 					<button 
