@@ -55,6 +55,15 @@ export const gameData = [
     }
 ];
 
+export const getCoupleString = (mom: string, dad: string) => {
+    return `${mom} & ${dad}`
+}
+
+export const getCoupleFromString = (coupleString: string) => {
+    const [mom, dad] = coupleString.split(' & ')
+    return { mom, dad }
+}
+
 export const celebrityImages = {
     'Mommy': 'https://raw.githubusercontent.com/madelinengo/baby-shower-game/refs/heads/main/images/pics_parents_for_app/mom_main.jpeg',
     'Daddy': 'https://raw.githubusercontent.com/madelinengo/baby-shower-game/refs/heads/main/images/pics_parents_for_app/dad_main.jpg',

@@ -69,9 +69,28 @@
 <div class="max-w-6xl mx-auto p-6">
 	<h1 class="text-4xl font-party text-center mb-8 text-baby-blue-700">🧪 Component Testing Dashboard</h1>
 	
+	<!-- Navigation Links -->
+	<div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-2 border-baby-pink-100">
+		<h2 class="text-2xl font-friendly font-semibold text-baby-pink-700 mb-4">🎮 Test Pages</h2>
+		<div class="flex flex-wrap gap-4">
+			<a 
+				href="/test/player"
+				class="bg-baby-pink-500 hover:bg-baby-pink-600 text-white font-friendly font-medium py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg transform hover:scale-105"
+			>
+				👶 Player Game Tests
+			</a>
+			<div class="bg-baby-blue-100 text-baby-blue-700 font-friendly font-medium py-3 px-6 rounded-lg border-2 border-baby-blue-300">
+				🎭 Host Component Tests (Current Page)
+			</div>
+		</div>
+		<p class="text-gray-600 font-friendly mt-4 text-sm">
+			This page tests host components. Visit <strong>Player Game Tests</strong> to test the player experience with drag & drop functionality.
+		</p>
+	</div>
+	
 	<!-- Scenario Controls -->
 	<div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-2 border-baby-blue-100">
-		<h2 class="text-2xl font-friendly font-semibold text-baby-blue-700 mb-4">📋 Test Scenarios</h2>
+		<h2 class="text-2xl font-friendly font-semibold text-baby-blue-700 mb-4">📋 Host Test Scenarios</h2>
 		<div class="flex flex-wrap gap-3">
 			<button 
 				class="bg-mint-500 hover:bg-mint-600 text-white font-friendly font-medium py-2 px-4 rounded-lg transition-colors"

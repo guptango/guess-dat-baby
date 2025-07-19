@@ -99,6 +99,7 @@ export const mockRoom: Room = {
 
 // Mock guesses for reveal phase
 export const mockGuesses: Guess[] = [
+	// Baby 0 guesses
 	{
 		id: '1',
 		player_id: '1',
@@ -122,10 +123,47 @@ export const mockGuesses: Guess[] = [
 	},
 	{
 		id: '4',
-		player_id: '1',
-		baby_index: 1,
+		player_id: '3',
+		baby_index: 0,
 		couple_name: 'Daddy & Halle Berry',
+		players: { name: 'Charlie Brown' }
+	},
+	
+	// Baby 4 guesses (for revealMidway scenario)
+	{
+		id: '5',
+		player_id: '1',
+		baby_index: 4,
+		couple_name: 'Mommy & Benedict Cumberbatch', // Correct answer
 		players: { name: 'Alice Johnson' }
+	},
+	{
+		id: '6',
+		player_id: '2',
+		baby_index: 4,
+		couple_name: 'Daddy & Zendaya', // Wrong answer
+		players: { name: 'Bob Smith' }
+	},
+	{
+		id: '7',
+		player_id: '3',
+		baby_index: 4,
+		couple_name: 'Mommy & Owen Wilson', // Wrong answer
+		players: { name: 'Charlie Brown' }
+	},
+	{
+		id: '8',
+		player_id: '4',
+		baby_index: 4,
+		couple_name: 'Mommy & Benedict Cumberbatch', // Correct answer
+		players: { name: 'Diana Ross' }
+	},
+	{
+		id: '9',
+		player_id: '5',
+		baby_index: 4,
+		couple_name: 'Daddy & Halle Berry', // Wrong answer
+		players: { name: 'Eddie Murphy' }
 	}
 ]
 

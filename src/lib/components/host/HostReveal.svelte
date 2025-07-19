@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { gameData, celebrityImages } from '$lib/gameData'
+	import { gameData, celebrityImages, getCoupleFromString, getCoupleString } from '$lib/gameData'
 	import PlayerCard from '../shared/PlayerCard.svelte'
 	import type { Player, Guess } from '$lib/test/mockData'
 
@@ -13,7 +13,7 @@
 		currentGuesses: Guess[]
 		players: Player[]
 		showingAnswer: boolean
-		correctAnswers: string[]
+		correctAnswers: {[babyId: string]: string}
 		revealLoading?: boolean
 		onRevealAnswer: () => void
 		onNextBaby: () => void
@@ -54,10 +54,18 @@
 			}
 		})
 		
+		const currentCorrectAnswer = correctAnswers[currentBabyData?.babyId]
+		console.log('Debug reveal:', {
+			currentBabyId: currentBabyData?.babyId,
+			currentCorrectAnswer,
+			showingAnswer,
+			allCorrectAnswers: correctAnswers,
+			groups: Object.keys(groups)
+		})
 		return Object.entries(groups).map(([couple, players]) => ({
 			couple,
 			players,
-			isCorrect: showingAnswer ? couple === correctAnswers[currentRevealIndex] : false
+			isCorrect: showingAnswer && currentCorrectAnswer ? couple === currentCorrectAnswer : false
 		}))
 	})
 
@@ -99,7 +107,7 @@
 									{/if}
 									<!-- Couple Pictures -->
 									<div class="flex gap-2">
-										{#each group.couple.split(' & ') as person}
+										{#each Object.values(getCoupleFromString(group.couple)) as person}
 											{#if celebrityImages[person]}
 												<img 
 													src={celebrityImages[person]} 
@@ -142,10 +150,10 @@
 			<div class="bg-sunshine-50 border-2 border-sunshine-300 rounded-xl p-8 mb-8 text-center">
 				<h4 class="text-3xl font-party text-sunshine-700 mb-6">🎯 Correct Answer!</h4>
 				<div class="text-3xl font-friendly font-bold text-sunshine-600 mb-6">
-					{correctAnswers[currentRevealIndex]}
+					{correctAnswers[currentBabyData?.babyId] || 'Loading...'}
 				</div>
 				<div class="flex justify-center gap-6">
-					{#each correctAnswers[currentRevealIndex].split(' & ') as parent}
+					{#each Object.values(getCoupleFromString(correctAnswers[currentBabyData?.babyId])) || [] as parent}
 						<div class="text-center">
 							<img 
 								src={celebrityImages[parent]} 

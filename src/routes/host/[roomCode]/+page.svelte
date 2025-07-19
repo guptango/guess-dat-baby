@@ -1,32 +1,52 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores'
 	import { onMount } from 'svelte'
-	import { supabase, GAME_STATES, getGuessesForReveal, precomputeAllScores, updateGameState } from '$lib/supabase'
+	import { supabase, GAME_STATES, getGuessesForReveal, precomputeAllScores, updateGameState, type Database } from '$lib/supabase'
 	import { gameData, celebrityImages } from '$lib/gameData'
 	import HostLobby from '$lib/components/host/HostLobby.svelte'
 	import HostGuessing from '$lib/components/host/HostGuessing.svelte'
 	import HostReveal from '$lib/components/host/HostReveal.svelte'
 	import HostResults from '$lib/components/host/HostResults.svelte'
 
-	let roomCode = $page.params.roomCode
-	let room = $state(null)
-	let players = $state([])
-	let gameState = $state(GAME_STATES.LOBBY)
-	let currentRevealIndex = $state(0)
-	let loading = $state(false)
+	// Type definitions
+	type Room = Database['public']['Tables']['rooms']['Row']
+	type Player = Database['public']['Tables']['players']['Row']
+	type Guess = Database['public']['Tables']['guesses']['Row'] & {
+		players?: { name: string }
+	}
+	type GameState = Database['public']['Tables']['rooms']['Row']['game_state']
+	
+	interface GroupedGuess {
+		couple: string
+		players: string[]
+	}
+
+	interface BabyData {
+		babyId: string
+		babyImage: string
+		correctParents: { mom: string; dad: string }
+	}
+
+	// State variables with proper typing
+	let roomCode: string = $page.params.roomCode
+	let room = $state<Room | null>(null)
+	let players = $state<Player[]>([])
+	let gameState = $state<GameState>(GAME_STATES.LOBBY)
+	let currentRevealIndex = $state<number>(0)
+	let loading = $state<boolean>(false)
 	
 	// Reveal phase state
-	let currentBabyData = $state(null)
-	let currentGuesses = $state([])
-	let showingAnswer = $state(false)
-	let revealLoading = $state(false)
+	let currentBabyData = $state<BabyData | null>(null)
+	let currentGuesses = $state<Guess[]>([])
+	let showingAnswer = $state<boolean>(false)
+	let revealLoading = $state<boolean>(false)
 
 	// Computed value to group guesses by couple
-	let groupedGuesses = $derived.by(() => {
-		const groups = {}
+	let groupedGuesses = $derived.by((): GroupedGuess[] => {
+		const groups: Record<string, string[]> = {}
 		// Ensure we're working with a safe copy of the data
 		const safeGuesses = [...currentGuesses]
-		safeGuesses.forEach(guess => {
+		safeGuesses.forEach((guess: Guess) => {
 			const coupleName = guess?.couple_name || 'Unknown Couple'
 			const playerName = guess?.players?.name || 'Unknown Player'
 			if (!groups[coupleName]) {
@@ -42,26 +62,23 @@
 	})
 
 	// Sorted players for display
-	let sortedPlayers = $derived([...players].sort((a, b) => b.score - a.score))
+	let sortedPlayers = $derived<Player[]>([...players].sort((a: Player, b: Player) => b.score - a.score))
 
-	// Correct answers mapping - stays in host browser only
-	const correctAnswers = [
-		'Daddy & Halle Berry',
-		'Daddy & Mindy Kaling', 
-		'Daddy & Priyanka Chopra',
-		'Daddy & Zendaya',
-		'Mommy & Benedict Cumberbatch',
-		'Mommy & Owen Wilson',
-		'Mommy & Rupert Grint',
-		'Mommy & Timothee Chalamet',
-		'Mommy & Daddy'
-	]
+	// Generate correct answers mapping from gameData - stays in host browser only
+	const correctAnswers = $derived.by((): Record<string, string> => {
+		const answers: Record<string, string> = {}
+		gameData.forEach((baby: BabyData) => {
+			answers[baby.babyId] = `${baby.correctParents.mom} & ${baby.correctParents.dad}`
+		})
+		console.log('Generated correct answers:', answers)
+		return answers
+	})
 
 	onMount(async () => {
 		await loadRoom()
 	})
 
-	async function loadRoom() {
+	async function loadRoom(): Promise<void> {
 		loading = true
 		
 		// Find room by code
@@ -77,9 +94,9 @@
 			return
 		}
 
-		room = { ...roomData }
+		room = { ...roomData } as Room
 		gameState = room.game_state
-		currentRevealIndex = room.current_reveal_index || 0
+		currentRevealIndex = room.current_reveal_index ?? 0
 		
 		subscribeToRoom()
 		await loadPlayers()
@@ -87,7 +104,7 @@
 		loading = false
 	}
 
-	function subscribeToRoom() {
+	function subscribeToRoom(): void {
 		if (!room) return
 
 		supabase
@@ -100,7 +117,7 @@
 					table: 'players',
 					filter: `room_id=eq.${room.id}`
 				},
-				(payload) => {
+				() => {
 					loadPlayers()
 				}
 			)
@@ -112,20 +129,20 @@
 					table: 'rooms',
 					filter: `id=eq.${room.id}`
 				},
-				(payload) => {
+				(payload: any) => {
 					console.log('Room change:', payload)
 					if (payload.new) {
-						gameState = payload.new.game_state
-						currentRevealIndex = payload.new.current_reveal_index || 0
+						gameState = payload.new.game_state as GameState
+						currentRevealIndex = payload.new.current_reveal_index ?? 0
 						// Create a completely new room object to avoid mutation
-						room = { ...payload.new }
+						room = { ...payload.new } as Room
 					}
 				}
 			)
 			.subscribe()
 	}
 
-	async function loadPlayers() {
+	async function loadPlayers(): Promise<void> {
 		if (!room) return
 
 		const { data, error } = await supabase
@@ -133,13 +150,13 @@
 			.select('*')
 			.eq('room_id', room.id)
 
-		if (!error) {
+		if (!error && data) {
 			// Deep copy to avoid mutation issues with Supabase data
-			players = JSON.parse(JSON.stringify(data || []))
+			players = JSON.parse(JSON.stringify(data)) as Player[]
 		}
 	}
 
-	async function startGame() {
+	async function startGame(): Promise<void> {
 		if (!room) return
 
 		const { error } = await supabase
@@ -152,10 +169,11 @@
 		}
 	}
 
-	async function startReveal() {
+	async function startReveal(): Promise<void> {
 		if (!room) return
 
 		// Precompute all scores before starting reveal
+		console.log('Starting reveal with correct answers:', correctAnswers)
 		const success = await precomputeAllScores(room.id, correctAnswers)
 		if (!success) {
 			console.error('Failed to precompute scores')
@@ -175,7 +193,7 @@
 		}
 	}
 
-	async function showFinalResults() {
+	async function showFinalResults(): Promise<void> {
 		if (!room) return
 
 		const { error } = await supabase
@@ -188,7 +206,7 @@
 		}
 	}
 
-	async function deleteRoom() {
+	async function deleteRoom(): Promise<void> {
 		if (!room) return
 		
 		if (!confirm(`Are you sure you want to delete room ${room.code}? This will end the game for all players and cannot be undone.`)) {
@@ -209,7 +227,7 @@
 		}
 	}
 
-	async function loadCurrentReveal() {
+	async function loadCurrentReveal(): Promise<void> {
 		try {
 			if (!room || typeof currentRevealIndex !== 'number') {
 				console.warn('Invalid state for loadCurrentReveal:', { room, currentRevealIndex })
@@ -224,27 +242,27 @@
 
 			// Hide answer immediately when loading new baby
 			showingAnswer = false
-			currentBabyData = gameData[currentRevealIndex]
-			const guesses = await getGuessesForReveal(room.id, currentRevealIndex)
+			currentBabyData = gameData[currentRevealIndex] as BabyData
+			const guesses = await getGuessesForReveal(room.id, currentBabyData.babyId)
 			// Deep copy to avoid mutation issues with Supabase data
-			currentGuesses = JSON.parse(JSON.stringify(guesses || []))
+			currentGuesses = JSON.parse(JSON.stringify(guesses ?? [])) as Guess[]
 		} catch (error) {
 			console.error('Error in loadCurrentReveal:', error)
 		}
 	}
 
-	async function revealAnswer() {
+	function revealAnswer(): void {
 		revealLoading = true
 		showingAnswer = true
 		revealLoading = false
 	}
 
-	async function nextBaby() {
+	async function nextBaby(): Promise<void> {
 		const nextIndex = currentRevealIndex + 1
 		await updateGameState(room.id, GAME_STATES.REVEAL, nextIndex)
 	}
 
-	function kickPlayer(playerId, playerName) {
+	function kickPlayer(playerId: string, playerName: string): void {
 		if (!confirm(`Are you sure you want to kick ${playerName} from the game?`)) {
 			return
 		}

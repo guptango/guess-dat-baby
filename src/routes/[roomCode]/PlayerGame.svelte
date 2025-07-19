@@ -1,47 +1,91 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte'
-	import { submitGuesses } from '$lib/supabase'
-	import { gameData, celebrityImages, maleCelebrities, femaleCelebrities, mommy, daddy } from '$lib/gameData'
+	import { supabase, submitGuesses } from '$lib/supabase'
+	import { gameData, celebrityImages, maleCelebrities, femaleCelebrities, mommy, daddy , getCoupleFromString, getCoupleString} from '$lib/gameData'
+	import type { Player, Room } from '$lib/test/mockData'
 
-	let { room, player } = $props()
+	// Component props with proper typing
+	interface Props {
+		room: Room
+		player: Player
+	}
+
+	let { room, player }: Props = $props()
 	
-	// Reactive state variables
-	let currentMatches = $state({})
-	let gameSubmitted = $state(false)
-	let submissionStatus = $state('')
+	// Type definitions for better code understanding
+	interface ParentCombination {
+		id: string
+		mom: string
+		dad: string
+	}
 
-	// Modal state
-	let modalState = $state({
+	interface CurrentMatches {
+		[babyId: string]: ParentCombination
+	}
+
+	interface ModalState {
+		show: boolean
+		title: string
+		message: string
+	}
+
+	interface GameData {
+		babyId: string
+		babyImage: string
+		correctParents: { mom: string, dad: string }
+	}
+
+	interface GuessSubmission {
+		babyId: string
+		coupleName: string
+	}
+
+	// Reactive state variables with proper typing
+	let currentMatches: CurrentMatches = $state({})
+	let gameSubmitted: boolean = $state(false)
+	let submissionStatus: string = $state('')
+
+	// Modal state with proper typing
+	let modalState: ModalState = $state({
 		show: false,
 		title: '',
 		message: ''
 	})
 
-	// Generate all possible parent combinations
-	let allPossibleParentCombinations = $state([])
-	let combinationIdCounter = 0
+	// Parent combinations with proper typing
+	let allPossibleParentCombinations: ParentCombination[] = $state([])
+	let combinationIdCounter: number = 0
 
 	maleCelebrities.forEach(male => {
-		allPossibleParentCombinations.push({ id: `combo-${combinationIdCounter++}`, mom: mommy, dad: male })
+		allPossibleParentCombinations.push({ id: getCoupleString(mommy, male), mom: mommy, dad: male })
 	})
 	femaleCelebrities.forEach(female => {
-		allPossibleParentCombinations.push({ id: `combo-${combinationIdCounter++}`, mom: daddy, dad: female })
+		allPossibleParentCombinations.push({ id: getCoupleString(daddy, female), mom: daddy, dad: female })
 	})
 
 	// Game data: baby images and their *actual* correct parents.
-	let shuffledGameData = $state([...gameData])
+	let shuffledGameData: GameData[] = $state([...gameData])
 
 	// --- Modal Functions ---
-	function showModal(title, message) {
+	/**
+	 * Shows a modal dialog with the specified title and message
+	 */
+	function showModal(title: string, message: string): void {
 		modalState = { show: true, title, message }
 	}
 
-	function hideModal() {
+	/**
+	 * Hides the modal dialog
+	 */
+	function hideModal(): void {
 		modalState = { show: false, title: '', message: '' }
 	}
 
 	// --- Utility Function ---
-	function shuffleArray(array) {
+	/**
+	 * Shuffles an array using Fisher-Yates algorithm
+	 */
+	function shuffleArray<T>(array: T[]): T[] {
 		for (let i = array.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1))
 			const temp = array[i]
@@ -52,16 +96,20 @@
 	}
 
 	// --- Drag and Drop Logic ---
-	let draggedItem = null
-	let draggedClone = null
-	let dragSourceParent = null
-	let currentDropTarget = null
-	let startX = 0
-	let startY = 0
-	let savedScrollPosition = 0
-	const dragThreshold = 10
+	// Drag and drop state with proper typing
+	let draggedItem: HTMLElement | null = null
+	let draggedClone: HTMLElement | null = null
+	let dragSourceParent: HTMLElement | null = null
+	let currentDropTarget: HTMLElement | null = null
+	let startX: number = 0
+	let startY: number = 0
+	let savedScrollPosition: number = 0
+	const dragThreshold: number = 10
 
-	function preventScroll(event) {
+	/**
+	 * Prevents page scrolling during drag operations
+	 */
+	function preventScroll(event: Event): boolean | void {
 		// Only prevent scrolling if we're currently dragging
 		if (draggedClone) {
 			event.preventDefault()
@@ -70,8 +118,11 @@
 		}
 	}
 
-	function createDragClone(originalElement) {
-		const clone = originalElement.cloneNode(true)
+	/**
+	 * Creates a visual clone of the dragged element for touch interactions
+	 */
+	function createDragClone(originalElement: HTMLElement): HTMLElement {
+		const clone = originalElement.cloneNode(true) as HTMLElement
 		clone.classList.add('touch-dragging-clone')
 		clone.style.position = 'fixed'
 		clone.style.left = '0px'
@@ -83,38 +134,61 @@
 		return clone
 	}
 
-	function getElementUnderPoint(x, y) {
+	/**
+	 * Gets the element under a specific point, temporarily hiding drag clone
+	 */
+	function getElementUnderPoint(x: number, y: number): Element | null {
 		if (draggedClone) draggedClone.style.display = 'none'
 		const element = document.elementFromPoint(x, y)
 		if (draggedClone) draggedClone.style.display = 'block'
 		return element
 	}
 
-	function handleDragStart(event) {
+	/**
+	 * Handles the start of a drag operation (desktop)
+	 */
+	function handleDragStart(event: DragEvent): void {
 		if (gameSubmitted) return
-		draggedItem = event.target
-		dragSourceParent = draggedItem.parentNode
 		
+		const target = event.target as HTMLElement
+		draggedItem = target
+		dragSourceParent = draggedItem.parentNode as HTMLElement
 		
-		event.dataTransfer.setData('text/plain', draggedItem.dataset.comboId)
-		event.dataTransfer.effectAllowed = 'move'
+		if (event.dataTransfer && draggedItem.dataset.comboId) {
+			event.dataTransfer.setData('text/plain', draggedItem.dataset.comboId)
+			event.dataTransfer.effectAllowed = 'move'
+		}
+		
 		setTimeout(() => {
-			draggedItem.classList.add('dragging')
+			if (draggedItem) {
+				draggedItem.classList.add('dragging')
+			}
 		}, 0)
 	}
 
-	function handleDragEnd(event) {
+	/**
+	 * Handles the end of a drag operation (desktop)
+	 */
+	function handleDragEnd(event: DragEvent): void {
 		if (draggedItem) {
 			draggedItem.classList.remove('dragging')
 			draggedItem = null
 		}
 		
+		// Clean up drag state and restore normal scrolling
+		cleanupDragState()
+	}
+
+	/**
+	 * Cleans up drag state and restores normal page behavior
+	 */
+	function cleanupDragState(): void {
 		// Remove all scroll prevention listeners
 		document.removeEventListener('wheel', preventScroll, { capture: true })
 		document.removeEventListener('scroll', preventScroll, { capture: true })
 		window.removeEventListener('scroll', preventScroll, { capture: true })
 		
-		// Restore body scrolling and scroll position (for non-touch events)
+		// Restore body scrolling and scroll position
 		document.body.style.overflow = ''
 		document.body.style.position = ''
 		document.body.style.top = ''
@@ -133,71 +207,101 @@
 		currentDropTarget = null
 	}
 
-	function handleDragOver(event) {
+	/**
+	 * Handles drag over events for drop targets
+	 */
+	function handleDragOver(event: DragEvent): void {
 		event.preventDefault()
 		if (gameSubmitted) return
-		const targetBabyCard = event.target.closest('.baby-card')
+		
+		const target = event.target as HTMLElement
+		const targetBabyCard = target.closest('.baby-card') as HTMLElement
+		
 		if (currentDropTarget && currentDropTarget !== targetBabyCard) {
 			currentDropTarget.classList.remove('drag-over')
 		}
-		if (targetBabyCard && !currentMatches[targetBabyCard.dataset.babyId]) {
+		
+		if (targetBabyCard && targetBabyCard.dataset.babyId && !currentMatches[targetBabyCard.dataset.babyId]) {
 			targetBabyCard.classList.add('drag-over')
 			currentDropTarget = targetBabyCard
 		} else {
 			currentDropTarget = null
 		}
-		event.dataTransfer.dropEffect = 'move'
+		
+		if (event.dataTransfer) {
+			event.dataTransfer.dropEffect = 'move'
+		}
 	}
 
-	function handleDragLeave(event) {
+	/**
+	 * Handles drag leave events for drop targets
+	 */
+	function handleDragLeave(event: DragEvent): void {
 		if (gameSubmitted) return
-		const targetBabyCard = event.target.closest('.baby-card')
+		
+		const target = event.target as HTMLElement
+		const targetBabyCard = target.closest('.baby-card') as HTMLElement
+		
 		if (targetBabyCard) {
 			targetBabyCard.classList.remove('drag-over')
 		}
+		
 		if (currentDropTarget === targetBabyCard) {
 			currentDropTarget = null
 		}
 	}
 
-	function handleDrop(event) {
+	/**
+	 * Handles drop events when a parent combination is dropped on a baby
+	 */
+	function handleDrop(event: DragEvent): void {
 		event.preventDefault()
 		if (gameSubmitted) return
-		const comboId = event.dataTransfer.getData('text/plain')
-		const targetBabyCard = event.target.closest('.baby-card')
+		
+		const comboId = event.dataTransfer?.getData('text/plain')
+		const target = event.target as HTMLElement
+		const targetBabyCard = target.closest('.baby-card') as HTMLElement
 
-
+		// Clean up visual indicators
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 		currentDropTarget = null
 
-		if (!targetBabyCard || !comboId) {
+		if (!targetBabyCard || !comboId || !targetBabyCard.dataset.babyId) {
 			return
 		}
+		
 		const babyId = targetBabyCard.dataset.babyId
 		
 		if (currentMatches[babyId]) {
 			showModal('Oops!', 'This baby already has a match. Please undo the current match first if you want to change it.')
 			return
 		}
+		
 		performDropLogic(babyId, comboId, targetBabyCard)
 	}
 
-	function handleTouchStart(event) {
+	/**
+	 * Handles touch start events for mobile drag operations
+	 */
+	function handleTouchStart(event: TouchEvent): void {
 		if (gameSubmitted) return
 		if (event.touches.length !== 1) return
 
 		const touch = event.touches[0]
-		const target = event.target.closest('.parent-card')
+		const target = (event.target as HTMLElement).closest('.parent-card') as HTMLElement
 
 		if (target) {
 			startX = touch.clientX
 			startY = touch.clientY
 			draggedItem = target
-			dragSourceParent = draggedItem.parentNode
+			dragSourceParent = draggedItem.parentNode as HTMLElement
 		}
 	}
 
-	function handleTouchMove(event) {
+	/**
+	 * Handles touch move events for mobile drag operations
+	 */
+	function handleTouchMove(event: TouchEvent): void {
 		if (!draggedItem || gameSubmitted) return
 		if (event.touches.length !== 1) return
 
@@ -208,33 +312,11 @@
 		const dx = Math.abs(currentX - startX)
 		const dy = Math.abs(currentY - startY)
 
+		// Initialize drag if threshold exceeded
 		if (!draggedClone) {
 			if (dx > dragThreshold || dy > dragThreshold) {
 				event.preventDefault()
-				draggedClone = createDragClone(draggedItem)
-				// Position the clone at the current finger position immediately
-				draggedClone.style.left = `${currentX}px`
-				draggedClone.style.top = `${currentY}px`
-				draggedClone.style.transform = 'translate(-50%, -50%)'
-				draggedItem.classList.add('dragging')
-				
-				// Save current scroll position before preventing body scrolling
-				savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop
-				
-				// Prevent body scrolling during drag while maintaining scroll position
-				document.body.style.overflow = 'hidden'
-				document.body.style.position = 'fixed'
-				document.body.style.top = `-${savedScrollPosition}px`
-				document.body.style.width = '100%'
-				
-				// Disable pull-to-refresh
-				document.body.style.overscrollBehavior = 'none'
-				document.documentElement.style.overscrollBehavior = 'none'
-				
-				// Add scroll prevention (but not touchmove to avoid interfering with drag)
-				document.addEventListener('wheel', preventScroll, { passive: false, capture: true })
-				document.addEventListener('scroll', preventScroll, { passive: false, capture: true })
-				window.addEventListener('scroll', preventScroll, { passive: false, capture: true })
+				initializeTouchDrag(currentX, currentY)
 			} else {
 				return
 			}
@@ -243,19 +325,66 @@
 			event.preventDefault()
 		}
 
-		// Ensure proper positioning accounting for any viewport scaling
-		draggedClone.style.left = `${currentX}px`
-		draggedClone.style.top = `${currentY}px`
-		draggedClone.style.transform = 'translate(-50%, -50%)'
+		// Update clone position
+		updateClonePosition(currentX, currentY)
 
-		const elementUnderFinger = getElementUnderPoint(currentX, currentY)
-		const potentialTarget = elementUnderFinger ? elementUnderFinger.closest('.baby-card') : null
+		// Handle drop target highlighting
+		updateDropTargetHighlight(currentX, currentY)
+	}
+
+	/**
+	 * Initializes touch drag operation
+	 */
+	function initializeTouchDrag(x: number, y: number): void {
+		if (!draggedItem) return
+		
+		draggedClone = createDragClone(draggedItem)
+		draggedClone.style.left = `${x}px`
+		draggedClone.style.top = `${y}px`
+		draggedClone.style.transform = 'translate(-50%, -50%)'
+		draggedItem.classList.add('dragging')
+		
+		// Save scroll position and prevent body scrolling
+		savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop
+		
+		document.body.style.overflow = 'hidden'
+		document.body.style.position = 'fixed'
+		document.body.style.top = `-${savedScrollPosition}px`
+		document.body.style.width = '100%'
+		
+		// Disable pull-to-refresh
+		document.body.style.overscrollBehavior = 'none'
+		document.documentElement.style.overscrollBehavior = 'none'
+		
+		// Add scroll prevention listeners
+		document.addEventListener('wheel', preventScroll, { passive: false, capture: true })
+		document.addEventListener('scroll', preventScroll, { passive: false, capture: true })
+		window.addEventListener('scroll', preventScroll, { passive: false, capture: true })
+	}
+
+	/**
+	 * Updates drag clone position
+	 */
+	function updateClonePosition(x: number, y: number): void {
+		if (!draggedClone) return
+		
+		draggedClone.style.left = `${x}px`
+		draggedClone.style.top = `${y}px`
+		draggedClone.style.transform = 'translate(-50%, -50%)'
+	}
+
+	/**
+	 * Updates drop target highlighting during drag
+	 */
+	function updateDropTargetHighlight(x: number, y: number): void {
+		const elementUnderFinger = getElementUnderPoint(x, y)
+		const potentialTarget = elementUnderFinger?.closest('.baby-card') as HTMLElement | null
 
 		if (currentDropTarget && currentDropTarget !== potentialTarget) {
 			currentDropTarget.classList.remove('drag-over')
 		}
 
-		if (potentialTarget && !currentMatches[potentialTarget.dataset.babyId]) {
+		if (potentialTarget?.dataset.babyId && !currentMatches[potentialTarget.dataset.babyId]) {
 			potentialTarget.classList.add('drag-over')
 			currentDropTarget = potentialTarget
 		} else {
@@ -263,96 +392,105 @@
 		}
 	}
 
-	function handleTouchEnd(event) {
+	/**
+	 * Handles touch end events for mobile drag operations
+	 */
+	function handleTouchEnd(event: TouchEvent): void {
 		if (!draggedItem || gameSubmitted) return
 
+		// Clean up visual indicators
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
 
+		// Remove drag clone
 		if (draggedClone) {
 			draggedClone.remove()
 			draggedClone = null
 		}
 
-		// Remove all scroll prevention listeners
-		document.removeEventListener('wheel', preventScroll, { capture: true })
-		document.removeEventListener('scroll', preventScroll, { capture: true })
-		window.removeEventListener('scroll', preventScroll, { capture: true })
-		
-		// Restore body scrolling and scroll position
-		document.body.style.overflow = ''
-		document.body.style.position = ''
-		document.body.style.top = ''
-		document.body.style.width = ''
-		
-		// Restore overscroll behavior (re-enable pull-to-refresh)
-		document.body.style.overscrollBehavior = ''
-		document.documentElement.style.overscrollBehavior = ''
-		
-		window.scrollTo(0, savedScrollPosition)
+		// Restore normal page behavior
+		cleanupDragState()
 
+		// Remove dragging style
 		draggedItem.classList.remove('dragging')
 
-		if (currentDropTarget) {
+		// Handle drop if there's a valid target
+		if (currentDropTarget?.dataset.babyId && draggedItem.dataset.comboId) {
 			const babyId = currentDropTarget.dataset.babyId
 			const comboId = draggedItem.dataset.comboId
+			
 			if (currentMatches[babyId]) {
 				showModal('Oops!', 'This baby already has a match. Please undo the current match first if you want to change it.')
 			} else {
 				performDropLogic(babyId, comboId, currentDropTarget)
 			}
 		}
+		
+		// Reset drag state
+		resetDragState()
+	}
+
+	/**
+	 * Resets all drag-related state variables
+	 */
+	function resetDragState(): void {
 		draggedItem = null
 		currentDropTarget = null
 		startX = 0
 		startY = 0
 	}
 
-	function performDropLogic(babyId, comboId, targetBabyCardElement) {
+	/**
+	 * Performs the core logic when a parent combination is dropped on a baby
+	 */
+	function performDropLogic(babyId: string, comboId: string, targetBabyCardElement: HTMLElement): void {
 		const comboData = allPossibleParentCombinations.find(combo => combo.id === comboId)
 		if (!comboData) {
 			console.error('Dropped combo data not found:', comboId)
 			return
 		}
 
-		
-		// Update reactive state directly (like original BabyGuesser)
+		// Update the current matches state
 		currentMatches = { ...currentMatches, [babyId]: comboData }
 		
-		// Hide the original draggable card from the parents list (like original)
+		// Hide the original parent card from the available list
 		const originalParentCard = document.getElementById(comboId)
 		if (originalParentCard) {
 			originalParentCard.classList.add('hidden')
 		}
-		
 	}
 
-	function undoMatch(babyId, comboId) {
+	/**
+	 * Undoes a match between a baby and parent combination
+	 */
+	function undoMatch(babyId: string, comboId: string): void {
 		if (gameSubmitted) return
 
-		// Remove the match from currentMatches (like original BabyGuesser)
+		// Remove the match from current matches
 		const newMatches = { ...currentMatches }
 		delete newMatches[babyId]
-		currentMatches = newMatches // Trigger reactivity
+		currentMatches = newMatches
 		
-		// Show the original parent card back in the parents list (like original)
+		// Show the parent card back in the available list
 		const originalParentCard = document.getElementById(comboId)
 		if (originalParentCard) {
 			originalParentCard.classList.remove('hidden')
 		}
-		
 	}
 
-	function isComboUsed(combo) {
-		const used = Object.values(currentMatches).some(match => match.id === combo.id)
-		return used
+	/**
+	 * Checks if a parent combination is already used
+	 */
+	function isComboUsed(combo: ParentCombination): boolean {
+		return Object.values(currentMatches).some(match => match.id === combo.id)
 	}
 
 	// Initial setup on component mount
 	onMount(() => {
+		// Shuffle game data and parent combinations for variety
 		shuffledGameData = shuffleArray([...gameData])
 		allPossibleParentCombinations = shuffleArray([...allPossibleParentCombinations])
 		
-		// If player has already submitted, mark as submitted
+		// Check if player has already submitted guesses
 		if (player.submitted_guesses) {
 			gameSubmitted = true
 			submissionStatus = 'You have already submitted your guesses!'
@@ -360,7 +498,10 @@
 		}
 	})
 
-	async function loadPreviousGuesses() {
+	/**
+	 * Loads previously submitted guesses if player has already played
+	 */
+	async function loadPreviousGuesses(): Promise<void> {
 		if (!player.submitted_guesses) return
 
 		const { data: guesses, error } = await supabase
@@ -369,19 +510,16 @@
 			.eq('player_id', player.id)
 
 		if (!error && guesses) {
-			// Reconstruct the matches from the saved guesses
-			const reconstructedMatches = {}
+			// Reconstruct matches from saved guesses
+			const reconstructedMatches: CurrentMatches = {}
 			
 			guesses.forEach(guess => {
-				const babyData = shuffledGameData[guess.baby_index]
-				if (babyData) {
-					// Find the matching combo from the couple name
-					const combo = allPossibleParentCombinations.find(c => 
-						`${c.mom} & ${c.dad}` === guess.couple_name
-					)
-					if (combo) {
-						reconstructedMatches[babyData.babyId] = combo
-					}
+				// Find matching parent combination from couple name
+				const combo = allPossibleParentCombinations.find(c => 
+					getCoupleString(c.mom, c.dad) === guess.couple_name
+				)
+				if (combo) {
+					reconstructedMatches[guess.baby_id] = combo
 				}
 			})
 			
@@ -390,33 +528,25 @@
 	}
 
 	// --- Submission Logic ---
-	async function handleSubmit() {
+	/**
+	 * Handles submission of all player guesses
+	 */
+	async function handleSubmit(): Promise<void> {
 		if (gameSubmitted) return
 
 		gameSubmitted = true
 		submissionStatus = 'Submitting...'
 
-		// Disable all drag-and-drop interactions
-		document.querySelectorAll('.parent-card').forEach(card => {
-			card.setAttribute('draggable', 'false')
-			card.removeEventListener('touchstart', handleTouchStart)
-			card.removeEventListener('touchmove', handleTouchMove)
-			card.removeEventListener('touchend', handleTouchEnd)
-		})
-		document.querySelectorAll('.baby-card').forEach(card => {
-			card.removeEventListener('dragover', handleDragOver)
-			card.removeEventListener('dragleave', handleDragLeave)
-			card.removeEventListener('drop', handleDrop)
-			const undoBtn = card.querySelector('.undo-button')
-			if (undoBtn) undoBtn.style.display = 'none'
-		})
+		// Disable all interactive elements
+		disableGameInteractions()
 
-		// Prepare data for submission
-		const guesses = Object.keys(currentMatches).map(babyId => ({
-			babyIndex: shuffledGameData.findIndex(baby => baby.babyId === babyId),
-			coupleName: `${currentMatches[babyId].mom} & ${currentMatches[babyId].dad}`
+		// Prepare guess data for submission
+		const guesses: GuessSubmission[] = Object.keys(currentMatches).map(babyId => ({
+			babyId: babyId,
+			coupleName: getCoupleString(currentMatches[babyId].mom, currentMatches[babyId].dad)
 		}))
 
+		// Submit guesses to database
 		const success = await submitGuesses(player.id, guesses)
 
 		if (success) {
@@ -426,6 +556,31 @@
 			submissionStatus = 'Submission failed. Please try again.'
 			gameSubmitted = false
 		}
+	}
+
+	/**
+	 * Disables all game interactions after submission
+	 */
+	function disableGameInteractions(): void {
+		// Disable drag and drop on parent cards
+		document.querySelectorAll('.parent-card').forEach(card => {
+			const element = card as HTMLElement
+			element.setAttribute('draggable', 'false')
+			element.removeEventListener('touchstart', handleTouchStart)
+			element.removeEventListener('touchmove', handleTouchMove)
+			element.removeEventListener('touchend', handleTouchEnd)
+		})
+		
+		// Disable drop zones and hide undo buttons
+		document.querySelectorAll('.baby-card').forEach(card => {
+			const element = card as HTMLElement
+			element.removeEventListener('dragover', handleDragOver)
+			element.removeEventListener('dragleave', handleDragLeave)
+			element.removeEventListener('drop', handleDrop)
+			
+			const undoBtn = element.querySelector('.undo-button') as HTMLElement
+			if (undoBtn) undoBtn.style.display = 'none'
+		})
 	}
 </script>
 
@@ -462,7 +617,7 @@
 								<img src={celebrityImages[currentMatches[baby.babyId].mom]} alt={currentMatches[baby.babyId].mom} class="celebrity-image" draggable="false">
 								<img src={celebrityImages[currentMatches[baby.babyId].dad]} alt={currentMatches[baby.babyId].dad} class="celebrity-image" draggable="false">
 							</div>
-							<span class="names-span">{currentMatches[baby.babyId].mom} & {currentMatches[baby.babyId].dad}</span>
+							<span class="names-span">{getCoupleString(currentMatches[baby.babyId].mom, currentMatches[baby.babyId].dad)}</span>
 							<button class="undo-button" onclick={(e) => { e.stopPropagation(); undoMatch(baby.babyId, currentMatches[baby.babyId].id); }}>X</button>
 						</div>
 					{:else}
@@ -493,7 +648,7 @@
 						<img src={celebrityImages[combo.mom]} alt={combo.mom} class="celebrity-image" draggable="false">
 						<img src={celebrityImages[combo.dad]} alt={combo.dad} class="celebrity-image" draggable="false">
 					</div>
-					<span class="names-span">{combo.mom} & {combo.dad}</span>
+					<span class="names-span">{getCoupleString(combo.mom, combo.dad)}</span>
 				</div>
 			{/each}
 		</div>

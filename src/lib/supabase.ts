@@ -56,19 +56,19 @@ export type Database = {
         Row: {
           id: string
           player_id: string
-          baby_index: number
+          baby_id: string
           couple_name: string
         }
         Insert: {
           id?: string
           player_id: string
-          baby_index: number
+          baby_id: string
           couple_name: string
         }
         Update: {
           id?: string
           player_id?: string
-          baby_index?: number
+          baby_id?: string
           couple_name?: string
         }
       }
@@ -147,10 +147,10 @@ export async function joinRoom(roomCode: string, playerName: string) {
   return { room, player }
 }
 
-export async function submitGuesses(playerId: string, guesses: Array<{babyIndex: number, coupleName: string}>) {
+export async function submitGuesses(playerId: string, guesses: Array<{babyId: string, coupleName: string}>) {
   const guessInserts = guesses.map(guess => ({
     player_id: playerId,
-    baby_index: guess.babyIndex,
+    baby_id: guess.babyId,
     couple_name: guess.coupleName
   }))
 
@@ -195,7 +195,7 @@ export async function updateGameState(roomId: string, gameState: string, revealI
   return true
 }
 
-export async function precomputeAllScores(roomId: string, correctAnswers: string[]) {
+export async function precomputeAllScores(roomId: string, correctAnswers: {[babyId: string]: string}) {
   // Get all players in the room
   const { data: players, error: playersError } = await supabase
     .from('players')
@@ -210,7 +210,7 @@ export async function precomputeAllScores(roomId: string, correctAnswers: string
   // Get all guesses for all players
   const { data: guesses, error: guessesError } = await supabase
     .from('guesses')
-    .select('player_id, baby_index, couple_name')
+    .select('player_id, baby_id, couple_name')
     .in('player_id', players.map(p => p.id))
 
   if (guessesError) {
@@ -223,12 +223,20 @@ export async function precomputeAllScores(roomId: string, correctAnswers: string
     const playerGuesses = guesses.filter(g => g.player_id === player.id)
     let totalScore = 0
     
+    console.log(`Scoring player ${player.id}:`)
+    console.log('Correct answers:', correctAnswers)
+    console.log('Player guesses:', playerGuesses)
+    
     playerGuesses.forEach(guess => {
-      const correctAnswer = correctAnswers[guess.baby_index]
-      if (guess.couple_name === correctAnswer) {
+      const correctAnswer = correctAnswers[guess.baby_id]
+      const isCorrect = guess.couple_name === correctAnswer
+      console.log(`Baby ${guess.baby_id}: "${guess.couple_name}" vs "${correctAnswer}" = ${isCorrect}`)
+      if (isCorrect) {
         totalScore += 1
       }
     })
+    
+    console.log(`Final score for player ${player.id}: ${totalScore}`)
     
     return {
       id: player.id,
@@ -266,7 +274,7 @@ export async function getPlayersInRoom(roomId: string) {
   return data
 }
 
-export async function getGuessesForReveal(roomId: string, babyIndex: number) {
+export async function getGuessesForReveal(roomId: string, babyId: string) {
   // First get the player IDs for this room
   const { data: playerIds, error: playerError } = await supabase
     .from('players')
@@ -289,7 +297,7 @@ export async function getGuessesForReveal(roomId: string, babyIndex: number) {
       *,
       players (name)
     `)
-    .eq('baby_index', babyIndex)
+    .eq('baby_id', babyId)
     .in('player_id', playerIds.map(p => p.id))
 
   if (error) {
@@ -300,7 +308,7 @@ export async function getGuessesForReveal(roomId: string, babyIndex: number) {
   return data || []
 }
 
-export async function calculateAndUpdateScores(roomId: string, babyIndex: number, correctAnswer: string) {
+export async function calculateAndUpdateScores(roomId: string, babyId: string, correctAnswer: string) {
   const { data: players, error: playersError } = await supabase
     .from('players')
     .select('id, score')
@@ -314,7 +322,7 @@ export async function calculateAndUpdateScores(roomId: string, babyIndex: number
   const { data: guesses, error: guessesError } = await supabase
     .from('guesses')
     .select('player_id, couple_name')
-    .eq('baby_index', babyIndex)
+    .eq('baby_id', babyId)
     .in('player_id', players.map(p => p.id))
 
   if (guessesError) {
