@@ -1,10 +1,10 @@
 export const mommy = 'Mommy';
 export const daddy = 'Daddy';
 export const maleCelebrities = [
-    'Owen Wilson', 'Benedict Cumberbatch', 'Rupert Grint', 'Timothee Chalamet'
+    'Owen Wilson', 'Benedict Cumberbatch', 'Rupert Grint', 'Timothee Chalamet', 'Daddy'
 ];
 export const femaleCelebrities = [
-    'Priyanka Chopra', 'Halle Berry', 'Zendaya', 'Mindy Kaling', 'Mommy'
+    'Priyanka Chopra', 'Halle Berry', 'Zendaya', 'Mindy Kaling'
 ];
 
 export const gameData = [
