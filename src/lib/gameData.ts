@@ -60,8 +60,11 @@ export const getCoupleString = (mom: string, dad: string) => {
 }
 
 export const getCoupleFromString = (coupleString: string) => {
+    if (!coupleString) {
+        return { mom: '', dad: '' }
+    }
     const [mom, dad] = coupleString.split(' & ')
-    return { mom, dad }
+    return { mom: mom || '', dad: dad || '' }
 }
 
 export const celebrityImages = {

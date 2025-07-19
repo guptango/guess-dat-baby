@@ -100,15 +100,17 @@
 									{/if}
 									<!-- Couple Pictures -->
 									<div class="flex gap-2">
-										{#each Object.values(getCoupleFromString(group.couple)) as person}
-											{#if celebrityImages[person]}
-												<img 
-													src={celebrityImages[person]} 
-													alt={person} 
-													class="w-12 h-12 rounded-full object-cover border-2 border-baby-pink-300 shadow-md"
-												/>
-											{/if}
-										{/each}
+										{#if group.couple}
+											{#each Object.values(getCoupleFromString(group.couple)) as person}
+												{#if celebrityImages[person]}
+													<img 
+														src={celebrityImages[person]} 
+														alt={person} 
+														class="w-12 h-12 rounded-full object-cover border-2 border-baby-pink-300 shadow-md"
+													/>
+												{/if}
+											{/each}
+										{/if}
 									</div>
 									<!-- Couple Name -->
 									<div class="font-friendly font-semibold text-lg {showingAnswer ? (group.isCorrect ? 'text-green-700' : 'text-red-700') : 'text-baby-blue-700'}">{group.couple}</div>
@@ -146,16 +148,18 @@
 					{correctAnswers[currentBabyData?.babyId] || 'Loading...'}
 				</div>
 				<div class="flex justify-center gap-6">
-					{#each Object.values(getCoupleFromString(correctAnswers[currentBabyData?.babyId])) || [] as parent}
-						<div class="text-center">
-							<img 
-								src={celebrityImages[parent]} 
-								alt={parent} 
-								class="w-24 h-24 rounded-full border-4 border-sunshine-400 mx-auto mb-3 shadow-lg"
-							/>
-							<p class="font-friendly font-medium text-sunshine-700">{parent}</p>
-						</div>
-					{/each}
+					{#if correctAnswers[currentBabyData?.babyId]}
+						{#each Object.values(getCoupleFromString(correctAnswers[currentBabyData?.babyId])) as parent}
+							<div class="text-center">
+								<img 
+									src={celebrityImages[parent]} 
+									alt={parent} 
+									class="w-24 h-24 rounded-full border-4 border-sunshine-400 mx-auto mb-3 shadow-lg"
+								/>
+								<p class="font-friendly font-medium text-sunshine-700">{parent}</p>
+							</div>
+						{/each}
+					{/if}
 				</div>
 			</div>
 
