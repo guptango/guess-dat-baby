@@ -384,7 +384,8 @@
 			currentDropTarget.classList.remove('drag-over')
 		}
 
-		if (potentialTarget?.dataset.babyId && !currentMatches[potentialTarget.dataset.babyId]) {
+		const potentialBabyId = potentialTarget?.getAttribute('data-baby-id')
+		if (potentialBabyId && !currentMatches[potentialBabyId]) {
 			potentialTarget.classList.add('drag-over')
 			currentDropTarget = potentialTarget
 		} else {
@@ -397,6 +398,11 @@
 	 */
 	function handleTouchEnd(event: TouchEvent): void {
 		if (!draggedItem || gameSubmitted) return
+
+		// Capture values BEFORE any cleanup that might reset them
+		const savedDropTarget = currentDropTarget
+		const comboId = draggedItem.dataset.comboId
+		const babyId = savedDropTarget?.getAttribute('data-baby-id')
 
 		// Clean up visual indicators
 		document.querySelectorAll('.baby-card').forEach(card => card.classList.remove('drag-over'))
@@ -413,15 +419,12 @@
 		// Remove dragging style
 		draggedItem.classList.remove('dragging')
 
-		// Handle drop if there's a valid target
-		if (currentDropTarget?.dataset.babyId && draggedItem.dataset.comboId) {
-			const babyId = currentDropTarget.dataset.babyId
-			const comboId = draggedItem.dataset.comboId
-			
+		// Handle drop using captured values
+		if (savedDropTarget && babyId && comboId) {
 			if (currentMatches[babyId]) {
 				showModal('Oops!', 'This baby already has a match. Please undo the current match first if you want to change it.')
 			} else {
-				performDropLogic(babyId, comboId, currentDropTarget)
+				performDropLogic(babyId, comboId, savedDropTarget)
 			}
 		}
 		

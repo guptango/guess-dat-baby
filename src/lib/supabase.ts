@@ -223,20 +223,13 @@ export async function precomputeAllScores(roomId: string, correctAnswers: {[baby
     const playerGuesses = guesses.filter(g => g.player_id === player.id)
     let totalScore = 0
     
-    console.log(`Scoring player ${player.id}:`)
-    console.log('Correct answers:', correctAnswers)
-    console.log('Player guesses:', playerGuesses)
-    
     playerGuesses.forEach(guess => {
       const correctAnswer = correctAnswers[guess.baby_id]
       const isCorrect = guess.couple_name === correctAnswer
-      console.log(`Baby ${guess.baby_id}: "${guess.couple_name}" vs "${correctAnswer}" = ${isCorrect}`)
       if (isCorrect) {
         totalScore += 1
       }
     })
-    
-    console.log(`Final score for player ${player.id}: ${totalScore}`)
     
     return {
       id: player.id,

@@ -55,13 +55,6 @@
 		})
 		
 		const currentCorrectAnswer = correctAnswers[currentBabyData?.babyId]
-		console.log('Debug reveal:', {
-			currentBabyId: currentBabyData?.babyId,
-			currentCorrectAnswer,
-			showingAnswer,
-			allCorrectAnswers: correctAnswers,
-			groups: Object.keys(groups)
-		})
 		return Object.entries(groups).map(([couple, players]) => ({
 			couple,
 			players,

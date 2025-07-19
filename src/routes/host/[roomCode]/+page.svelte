@@ -70,7 +70,6 @@
 		gameData.forEach((baby: BabyData) => {
 			answers[baby.babyId] = `${baby.correctParents.mom} & ${baby.correctParents.dad}`
 		})
-		console.log('Generated correct answers:', answers)
 		return answers
 	})
 
@@ -173,7 +172,6 @@
 		if (!room) return
 
 		// Precompute all scores before starting reveal
-		console.log('Starting reveal with correct answers:', correctAnswers)
 		const success = await precomputeAllScores(room.id, correctAnswers)
 		if (!success) {
 			console.error('Failed to precompute scores')
