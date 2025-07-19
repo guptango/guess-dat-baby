@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PlayerGame from '../../[roomCode]/PlayerGame.svelte'
-	import PlayerGame2 from './PlayerGame2.svelte'
+	import PlayerGame2 from '../../../lib/components/player/PlayerGame2.svelte'
 	import type { Player, Room } from '$lib/test/mockData'
 	import { GAME_STATES } from '$lib/test/mockData'
 
