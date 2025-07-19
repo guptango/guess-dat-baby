@@ -4,6 +4,7 @@
 	import { joinRoom, supabase, GAME_STATES } from '$lib/supabase'
 	import PlayerLobby from './PlayerLobby.svelte'
 	import PlayerGame from './PlayerGame.svelte'
+    import PlayerGame2 from '$lib/components/player/PlayerGame2.svelte'
 
 	let roomCode = $page.params.roomCode
 	let playerName = $state('')
@@ -175,7 +176,7 @@
 	{:else if gameState === GAME_STATES.LOBBY}
 		<PlayerLobby {room} {player} />
 	{:else if gameState === GAME_STATES.GUESSING}
-		<PlayerGame {room} {player} />
+		<PlayerGame2 {room} {player} />
 	{:else if gameState === GAME_STATES.REVEAL}
 		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-sunshine-200">
 			<h2 class="text-3xl font-party text-sunshine-700 mb-6">🎉 Reveal Phase</h2>
