@@ -36,7 +36,7 @@
 	}
 
 	async function deleteRoom(roomId, roomCode) {
-		if (!confirm(`Are you sure you want to delete room ${roomCode}? This action cannot be undone.`)) {
+		if (!confirm(`Are you sure you want to delete game ${roomCode}? This action cannot be undone.`)) {
 			return
 		}
 
@@ -48,8 +48,8 @@
 		if (!error) {
 			await loadExistingRooms()
 		} else {
-			console.error('Error deleting room:', error)
-			alert('Failed to delete room. Please try again.')
+			console.error('Error deleting game:', error)
+			alert('Failed to delete game. Please try again.')
 		}
 	}
 
@@ -83,21 +83,21 @@
 <div class="max-w-4xl mx-auto p-6">
 	<h1 class="text-4xl font-party text-center mb-8 text-baby-blue-700">🎮 Host Dashboard 🎯</h1>
 
-	<!-- Create New Room Button -->
+	<!-- Create New Game Button -->
 	<div class="text-center mb-8">
 		<button 
 			class="bg-baby-pink-500 hover:bg-baby-pink-600 text-white font-friendly font-bold py-4 px-8 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 shadow-lg"
 			disabled={creatingRoom}
 			onclick={createNewRoom}
 		>
-			{creatingRoom ? '✨ Creating Room...' : '🎉 Create New Room'}
+			{creatingRoom ? '✨ Creating Game...' : '🎉 Create New Game'}
 		</button>
 	</div>
 
 	<!-- Existing Rooms -->
 	<div class="bg-white rounded-xl shadow-lg p-6 border-2 border-baby-blue-100">
 		<div class="flex justify-between items-center mb-6">
-			<h2 class="text-2xl font-friendly font-semibold text-baby-blue-700">🏠 Your Rooms</h2>
+			<h2 class="text-2xl font-friendly font-semibold text-baby-blue-700">🎮 Your Games</h2>
 			<button 
 				class="text-baby-pink-600 hover:text-baby-pink-700 text-sm font-friendly font-medium px-3 py-2 rounded-lg hover:bg-baby-pink-50 transition-colors"
 				onclick={loadExistingRooms}
@@ -109,12 +109,12 @@
 
 		{#if loading}
 			<div class="text-center py-8">
-				<p class="text-gray-500">Loading rooms...</p>
+				<p class="text-gray-500">Loading games...</p>
 			</div>
 		{:else if existingRooms.length === 0}
 			<div class="text-center py-8">
-				<p class="text-gray-500 mb-4">No rooms found</p>
-				<p class="text-sm text-gray-400">Create your first room to get started!</p>
+				<p class="text-gray-500 mb-4">No games found</p>
+				<p class="text-sm text-gray-400">Create your first game to get started!</p>
 			</div>
 		{:else}
 			<div class="space-y-4">
@@ -150,7 +150,7 @@
 								<button 
 									class="bg-red-400 hover:bg-red-500 text-white text-sm font-friendly font-medium py-2 px-3 rounded-lg transition-colors"
 									onclick={() => deleteRoom(room.id, room.code)}
-									title="Delete Room"
+									title="Delete Game"
 								>
 									🗑️
 								</button>
@@ -170,10 +170,10 @@
 	<div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
 		<h3 class="text-lg font-semibold text-blue-800 mb-2">How it works:</h3>
 		<ul class="text-sm text-blue-700 space-y-1">
-			<li>• <strong>Create a room</strong> to get a unique 4-letter code</li>
-			<li>• <strong>Share the room URL</strong> (/{'{room-code}'}) with players</li>
-			<li>• <strong>Manage your room</strong> through the host dashboard</li>
-			<li>• <strong>Delete rooms</strong> when the game is over</li>
+			<li>• <strong>Create a game</strong> to get a unique 4-letter code</li>
+			<li>• <strong>Share the game URL</strong> (/{'{game-code}'}) with players</li>
+			<li>• <strong>Manage your game</strong> through the host dashboard</li>
+			<li>• <strong>Delete games</strong> when the game is over</li>
 		</ul>
 	</div>
 </div>

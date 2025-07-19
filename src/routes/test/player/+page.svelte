@@ -171,7 +171,7 @@
 					</div>
 				</div>
 				<div>
-					<span class="font-medium text-baby-blue-600">Room:</span>
+					<span class="font-medium text-baby-blue-600">Game:</span>
 					<div class="text-gray-700">
 						Code: {currentScenario.room.code}<br>
 						State: {currentScenario.room.game_state}<br>

@@ -207,7 +207,7 @@
 	async function deleteRoom(): Promise<void> {
 		if (!room) return
 		
-		if (!confirm(`Are you sure you want to delete room ${room.code}? This will end the game for all players and cannot be undone.`)) {
+		if (!confirm(`Are you sure you want to delete game ${room.code}? This will end the game for all players and cannot be undone.`)) {
 			return
 		}
 
@@ -220,8 +220,8 @@
 			// Redirect back to host dashboard
 			window.location.href = '/host'
 		} else {
-			console.error('Error deleting room:', error)
-			alert('Failed to delete room. Please try again.')
+			console.error('Error deleting game:', error)
+			alert('Failed to delete game. Please try again.')
 		}
 	}
 
@@ -292,7 +292,7 @@
 
 <div class="max-w-4xl mx-auto p-6">
 	<div class="flex justify-between items-center mb-8">
-		<h1 class="text-3xl font-party text-baby-blue-700">🎮 Host Dashboard - Room {roomCode.toUpperCase()}</h1>
+		<h1 class="text-3xl font-party text-baby-blue-700">🎮 Host Dashboard - Game {roomCode.toUpperCase()}</h1>
 		<div class="flex gap-3">
 			<a href="/host" class="text-gray-600 hover:text-baby-blue-600 text-sm font-friendly font-medium py-2 px-4 rounded-lg border-2 border-gray-300 hover:border-baby-blue-300 transition-colors">
 				← Back to Dashboard
@@ -300,16 +300,16 @@
 			<button 
 				class="bg-red-400 hover:bg-red-500 text-white text-sm font-friendly font-medium py-2 px-3 rounded-lg transition-colors"
 				onclick={deleteRoom}
-				title="Delete Room"
+				title="Delete Game"
 			>
-				🗑️ Delete Room
+				🗑️ Delete Game
 			</button>
 		</div>
 	</div>
 
 	{#if loading}
 		<div class="text-center">
-			<p class="text-lg font-friendly text-gray-600">✨ Loading room...</p>
+			<p class="text-lg font-friendly text-gray-600">✨ Loading game...</p>
 		</div>
 	{:else if room}
 		{#if gameState === GAME_STATES.LOBBY}
@@ -344,9 +344,9 @@
 		{/if}
 	{:else}
 		<div class="text-center">
-			<p class="text-red-600">Room not found. Please check the room code.</p>
+			<p class="text-red-600">Game not found. Please check the game code.</p>
 			<a href="/host" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">
-				Create New Room
+				Create New Game
 			</a>
 		</div>
 	{/if}
