@@ -108,11 +108,7 @@ export const gameData = [
         babyImage: 'https://raw.githubusercontent.com/madelinengo/baby-shower-game/refs/heads/main/images/pics_baby/dad_kerry.jpeg',
         correctParents: { mom: daddy, dad: 'Kerry Washington' }
     },
-    {
-        babyId: 'baby23',
-        babyImage: 'https://raw.githubusercontent.com/madelinengo/baby-shower-game/refs/heads/main/images/pics_baby/dad_freida.jpeg',
-        correctParents: { mom: daddy, dad: 'Freida Pinto' }
-    },
+
     {
         babyId: 'correctBaby',
         babyImage: 'https://raw.githubusercontent.com/madelinengo/baby-shower-game/refs/heads/main/images/pics_baby/dad_mom.jpeg',
