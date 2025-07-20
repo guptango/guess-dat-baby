@@ -1,10 +1,28 @@
 <script>
+    import { onMount } from 'svelte'
+    
     let roomCode = $state('')
+    let errorMessage = $state('')
+
+    onMount(() => {
+        // Check for room error from localStorage
+        const roomError = localStorage.getItem('roomError')
+        if (roomError) {
+            errorMessage = roomError
+            localStorage.removeItem('roomError')
+        }
+    })
 </script>
 
 <div class="game-container">
     <h1 class="text-4xl font-party text-baby-blue-700 mb-4">🍼 Guess Dat Baby! 👶</h1>
     <p class="text-baby-pink-600 font-friendly mb-8">Welcome to the cutest guessing game!</p>
+    
+    {#if errorMessage}
+        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-6 max-w-2xl mx-auto">
+            <p class="text-red-600 text-sm font-friendly">❌ {errorMessage}</p>
+        </div>
+    {/if}
     
     <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
         <div class="bg-baby-blue-50 rounded-xl p-6 border-2 border-baby-blue-200">

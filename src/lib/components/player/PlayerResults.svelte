@@ -43,6 +43,11 @@
 		return groups
 	})
 
+	// Find current player's updated data from players array
+	let currentPlayerData = $derived(
+		players.find(player => player.id === currentPlayer.id) || currentPlayer
+	)
+
 	// Find current player's rank group
 	let currentPlayerRank = $derived(
 		rankGroups.find(group => 
@@ -127,7 +132,7 @@
 			{celebrationMessage}
 		</p>
 		<div class="mt-4">
-			<span class="text-3xl font-party text-blue-700">Your Score: {currentPlayer.score}</span>
+			<span class="text-3xl font-party text-blue-700">Your Score: {currentPlayerData.score}</span>
 		</div>
 	</div>
 

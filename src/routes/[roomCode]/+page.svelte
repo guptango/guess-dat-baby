@@ -103,7 +103,6 @@
 
 		if (!error && data) {
 			room = data
-            console.log("room", room)
 			gameState = data.game_state
 			
 			// Load players if we're in RESULTS state
@@ -113,7 +112,9 @@
 			
 			subscribeToRoom()
 		} else {
-			errorMessage = 'Room not found. The room may have ended or the code is incorrect.'
+			// Room doesn't exist, redirect to home with error
+			localStorage.setItem('roomError', `Room "${roomCode.toUpperCase()}" not found. Please check the code and try again.`)
+			goto('/')
 		}
 	}
 
