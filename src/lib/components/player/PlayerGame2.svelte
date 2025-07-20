@@ -564,8 +564,8 @@
 	}
 
 	.dropdown-celebrity-image {
-		width: 50px;
-		height: 50px;
+		width: 80px;
+		height: 80px;
 		border-radius: 50%;
 		object-fit: cover;
 		border: 2px solid rgba(255, 255, 255, 0.5);
