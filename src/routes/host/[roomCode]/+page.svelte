@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { onMount } from 'svelte'
-	import { supabase, GAME_STATES, getGuessesForReveal, precomputeAllScores, updateGameState, type Database } from '$lib/supabase'
+	import { supabase, GAME_STATES, getGuessesForReveal, precomputeAllScores, updateGameState, updateRevealState, nextBaby as nextBabyUpdate, type Database } from '$lib/supabase'
 	import { gameData, celebrityImages } from '$lib/gameData'
 	import HostLobby from '$lib/components/host/HostLobby.svelte'
 	import HostGuessing from '$lib/components/host/HostGuessing.svelte'
@@ -38,7 +38,8 @@
 	// Reveal phase state
 	let currentBabyData = $state<BabyData | null>(null)
 	let currentGuesses = $state<Guess[]>([])
-	let showingAnswer = $state<boolean>(false)
+	// Use database state instead of local state for consistency
+	let showingAnswer = $derived<boolean>(room?.answer_revealed || false)
 	let revealLoading = $state<boolean>(false)
 
 	// Computed value to group guesses by couple
@@ -238,8 +239,7 @@
 				return
 			}
 
-			// Hide answer immediately when loading new baby
-			showingAnswer = false
+			// Answer visibility is now controlled by database state
 			currentBabyData = gameData[currentRevealIndex] as BabyData
 			const guesses = await getGuessesForReveal(room.id, currentBabyData.babyId)
 			// Deep copy to avoid mutation issues with Supabase data
@@ -249,15 +249,22 @@
 		}
 	}
 
-	function revealAnswer(): void {
+	async function revealAnswer(): Promise<void> {
 		revealLoading = true
-		showingAnswer = true
+		
+		// Sync the answer reveal to the database for players to see
+		const correctAnswer = correctAnswers[currentBabyData?.babyId]
+		if (correctAnswer) {
+			await updateRevealState(room.id, true, correctAnswer)
+		}
+		
 		revealLoading = false
 	}
 
 	async function nextBaby(): Promise<void> {
 		const nextIndex = currentRevealIndex + 1
-		await updateGameState(room.id, GAME_STATES.REVEAL, nextIndex)
+		// Use the new nextBaby function that resets reveal state
+		await nextBabyUpdate(room.id, nextIndex)
 	}
 
 	function kickPlayer(playerId: string, playerName: string): void {

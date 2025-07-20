@@ -5,6 +5,7 @@
 	import PlayerLobby from './PlayerLobby.svelte'
 	import PlayerGame from './PlayerGame.svelte'
     import PlayerGame2 from '$lib/components/player/PlayerGame2.svelte'
+    import PlayerReveal from '$lib/components/player/PlayerReveal.svelte'
 	import { goto } from '$app/navigation'
 
 	let roomCode = $page.params.roomCode
@@ -213,11 +214,7 @@
 	{:else if gameState === GAME_STATES.GUESSING}
 		<PlayerGame2 {room} {player} />
 	{:else if gameState === GAME_STATES.REVEAL}
-		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-sunshine-200">
-			<h2 class="text-3xl font-party text-sunshine-700 mb-6">🎉 Reveal Phase</h2>
-			<p class="text-gray-600 font-friendly text-lg">Watch the host screen for the big reveal! 👀</p>
-			<p class="text-sunshine-600 font-friendly text-sm mt-4">Find out how well you guessed those adorable babies! 🍼</p>
-		</div>
+		<PlayerReveal {room} {player} />
 	{:else if gameState === GAME_STATES.RESULTS}
 		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-baby-blue-200">
 			<h2 class="text-3xl font-party text-baby-blue-700 mb-6">🏆 Final Results</h2>

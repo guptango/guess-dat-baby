@@ -12,6 +12,8 @@ export type Database = {
           code: string
           game_state: 'LOBBY' | 'GUESSING' | 'REVEAL' | 'RESULTS'
           current_reveal_index: number
+          answer_revealed: boolean
+          current_correct_answer: string | null
           created_at: string
         }
         Insert: {
@@ -19,6 +21,8 @@ export type Database = {
           code: string
           game_state?: 'LOBBY' | 'GUESSING' | 'REVEAL' | 'RESULTS'
           current_reveal_index?: number
+          answer_revealed?: boolean
+          current_correct_answer?: string | null
           created_at?: string
         }
         Update: {
@@ -26,6 +30,8 @@ export type Database = {
           code?: string
           game_state?: 'LOBBY' | 'GUESSING' | 'REVEAL' | 'RESULTS'
           current_reveal_index?: number
+          answer_revealed?: boolean
+          current_correct_answer?: string | null
           created_at?: string
         }
       }
@@ -100,7 +106,9 @@ export async function createRoom() {
       { 
         code,
         game_state: GAME_STATES.LOBBY,
-        current_reveal_index: 0
+        current_reveal_index: 0,
+        answer_revealed: false,
+        current_correct_answer: null
       }
     ])
     .select()
@@ -361,6 +369,59 @@ export async function calculateAndUpdateScores(roomId: string, babyId: string, c
       console.error('Error updating score for player:', update.id, updateError)
       return false
     }
+  }
+
+  return true
+}
+
+export async function getPlayerGuessForBaby(playerId: string, babyId: string) {
+  const { data, error } = await supabase
+    .from('guesses')
+    .select('*')
+    .eq('player_id', playerId)
+    .eq('baby_id', babyId)
+    .single()
+
+  if (error) {
+    console.error('Error getting player guess:', error)
+    return null
+  }
+
+  return data
+}
+
+export async function updateRevealState(roomId: string, answerRevealed: boolean, correctAnswer: string | null = null) {
+  const updateData: any = { answer_revealed: answerRevealed }
+  if (correctAnswer !== null) {
+    updateData.current_correct_answer = correctAnswer
+  }
+
+  const { error } = await supabase
+    .from('rooms')
+    .update(updateData)
+    .eq('id', roomId)
+
+  if (error) {
+    console.error('Error updating reveal state:', error)
+    return false
+  }
+
+  return true
+}
+
+export async function nextBaby(roomId: string, newRevealIndex: number) {
+  const { error } = await supabase
+    .from('rooms')
+    .update({ 
+      current_reveal_index: newRevealIndex,
+      answer_revealed: false,
+      current_correct_answer: null
+    })
+    .eq('id', roomId)
+
+  if (error) {
+    console.error('Error updating to next baby:', error)
+    return false
   }
 
   return true
