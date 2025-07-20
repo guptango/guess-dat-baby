@@ -103,6 +103,7 @@
 
 		if (!error && data) {
 			room = data
+            console.log("room", room)
 			gameState = data.game_state
 			
 			// Load players if we're in RESULTS state

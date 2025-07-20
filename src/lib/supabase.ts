@@ -125,7 +125,7 @@ export async function createRoom() {
 export async function joinRoom(roomCode: string, playerName: string) {
   const { data: room, error: roomError } = await supabase
     .from('rooms')
-    .select('id')
+    .select('*')
     .eq('code', roomCode.toUpperCase())
     .single()
 
