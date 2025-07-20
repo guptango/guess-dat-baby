@@ -171,12 +171,6 @@
 			{/if}
 		</div>
 		
-		<!-- Current Score Display -->
-		<div class="bg-baby-pink-50 border-2 border-baby-pink-200 rounded-xl p-4 text-center">
-			<p class="text-baby-pink-700 font-friendly font-semibold">
-				🏆 Your Current Score: {player.score}
-			</p>
-		</div>
 	{:else}
 		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-gray-200">
 			<p class="text-gray-600 font-friendly text-lg">No baby data available for reveal... 🤔</p>
