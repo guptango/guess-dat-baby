@@ -65,10 +65,9 @@
 				},
 				(payload) => {
 					if (payload.new) {
-						// When reveal index changes, load new baby data
-						if (payload.new.current_reveal_index !== currentRevealIndex) {
-							loadPlayerGuessForCurrentBaby()
-						}
+						// Update room data and load new baby data when reveal index changes
+						room = payload.new
+						loadPlayerGuessForCurrentBaby()
 					}
 				}
 			)

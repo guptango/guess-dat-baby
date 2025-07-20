@@ -6,6 +6,7 @@
 	import PlayerGame from './PlayerGame.svelte'
     import PlayerGame2 from '$lib/components/player/PlayerGame2.svelte'
     import PlayerReveal from '$lib/components/player/PlayerReveal.svelte'
+    import PlayerResults from '$lib/components/player/PlayerResults.svelte'
 	import { goto } from '$app/navigation'
 
 	let roomCode = $page.params.roomCode
@@ -16,6 +17,7 @@
 	let loading = $state(true) // Start with loading true
 	let errorMessage = $state('')
 	let exiting = $state(false)
+	let players = $state([])
 
 	onMount(() => {
 		checkExistingSession()
@@ -102,9 +104,29 @@
 		if (!error && data) {
 			room = data
 			gameState = data.game_state
+			
+			// Load players if we're in RESULTS state
+			if (data.game_state === GAME_STATES.RESULTS) {
+				await loadPlayers()
+			}
+			
 			subscribeToRoom()
 		} else {
 			errorMessage = 'Room not found. The room may have ended or the code is incorrect.'
+		}
+	}
+
+	async function loadPlayers() {
+		if (!room) return
+		
+		const { data, error } = await supabase
+			.from('players')
+			.select('*')
+			.eq('room_id', room.id)
+			.order('score', { ascending: false })
+		
+		if (!error && data) {
+			players = data
 		}
 	}
 
@@ -121,9 +143,16 @@
 					table: 'rooms',
 					filter: `id=eq.${room.id}`
 				},
-				(payload) => {
+				async (payload) => {
 					if (payload.new) {
-						gameState = payload.new.game_state
+						const newGameState = payload.new.game_state
+						
+						// If transitioning to RESULTS, load players
+						if (newGameState === GAME_STATES.RESULTS && gameState !== GAME_STATES.RESULTS) {
+							await loadPlayers()
+						}
+						
+						gameState = newGameState
 						room = { ...room, ...payload.new }
 					}
 				}
@@ -216,11 +245,14 @@
 	{:else if gameState === GAME_STATES.REVEAL}
 		<PlayerReveal {room} {player} />
 	{:else if gameState === GAME_STATES.RESULTS}
-		<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-baby-blue-200">
-			<h2 class="text-3xl font-party text-baby-blue-700 mb-6">🏆 Final Results</h2>
-			<p class="text-gray-600 font-friendly text-lg">Check the host screen for final results! 📊</p>
-			<p class="text-baby-blue-600 font-friendly text-sm mt-4">Great job playing! Hope you had fun! 🎊</p>
-		</div>
+		{#if players.length > 0 && player}
+			<PlayerResults {players} currentPlayer={player} />
+		{:else}
+			<div class="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-baby-blue-200">
+				<h2 class="text-3xl font-party text-baby-blue-700 mb-6">🏆 Final Results</h2>
+				<p class="text-gray-600 font-friendly text-lg">Loading results... 📊</p>
+			</div>
+		{/if}
 	{/if}
 	
 		{#if errorMessage && !room}
