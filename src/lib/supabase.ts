@@ -126,6 +126,22 @@ export async function joinRoom(roomCode: string, playerName: string) {
     return null
   }
 
+  // Check if a player with the same name already exists in this room
+  const { data: existingPlayers, error: checkError } = await supabase
+    .from('players')
+    .select('name')
+    .eq('room_id', room.id)
+    .eq('name', playerName)
+
+  if (checkError) {
+    console.error('Error checking existing players:', checkError)
+    return null
+  }
+
+  if (existingPlayers && existingPlayers.length > 0) {
+    return { error: 'A player with this name already exists in the room. Please choose a different name.' }
+  }
+
   const { data: player, error: playerError } = await supabase
     .from('players')
     .insert([
@@ -345,6 +361,37 @@ export async function calculateAndUpdateScores(roomId: string, babyId: string, c
       console.error('Error updating score for player:', update.id, updateError)
       return false
     }
+  }
+
+  return true
+}
+
+export async function exitGame(playerId: string, roomCode: string) {
+  // First delete all guesses for this player
+  const { error: guessDeleteError } = await supabase
+    .from('guesses')
+    .delete()
+    .eq('player_id', playerId)
+
+  if (guessDeleteError) {
+    console.error('Error deleting player guesses:', guessDeleteError)
+  }
+
+  // Then delete the player
+  const { error: playerDeleteError } = await supabase
+    .from('players')
+    .delete()
+    .eq('id', playerId)
+
+  if (playerDeleteError) {
+    console.error('Error deleting player:', playerDeleteError)
+    return false
+  }
+
+  // Clear localStorage
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(`gamePlayer_${roomCode}`)
+    localStorage.removeItem(`gameRoom_${roomCode}`)
   }
 
   return true

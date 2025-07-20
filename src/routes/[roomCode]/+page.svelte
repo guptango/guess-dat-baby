@@ -1,10 +1,11 @@
 <script>
 	import { page } from '$app/stores'
 	import { onMount } from 'svelte'
-	import { joinRoom, supabase, GAME_STATES } from '$lib/supabase'
+	import { joinRoom, supabase, GAME_STATES, exitGame } from '$lib/supabase'
 	import PlayerLobby from './PlayerLobby.svelte'
 	import PlayerGame from './PlayerGame.svelte'
     import PlayerGame2 from '$lib/components/player/PlayerGame2.svelte'
+	import { goto } from '$app/navigation'
 
 	let roomCode = $page.params.roomCode
 	let playerName = $state('')
@@ -13,6 +14,7 @@
 	let gameState = $state(GAME_STATES.LOBBY)
 	let loading = $state(true) // Start with loading true
 	let errorMessage = $state('')
+	let exiting = $state(false)
 
 	onMount(() => {
 		checkExistingSession()
@@ -71,13 +73,17 @@
 		const result = await joinRoom(roomCode, playerName)
 		
 		if (result) {
-			room = result.room
-			player = result.player
-			
-			localStorage.setItem(`gamePlayer_${roomCode}`, JSON.stringify(player))
-			localStorage.setItem(`gameRoom_${roomCode}`, JSON.stringify(room))
-			
-			subscribeToRoom()
+			if (result.error) {
+				errorMessage = result.error
+			} else {
+				room = result.room
+				player = result.player
+				
+				localStorage.setItem(`gamePlayer_${roomCode}`, JSON.stringify(player))
+				localStorage.setItem(`gameRoom_${roomCode}`, JSON.stringify(room))
+				
+				subscribeToRoom()
+			}
 		} else {
 			errorMessage = 'Room not found. Please check the code and try again.'
 		}
@@ -123,6 +129,26 @@
 			)
 			.subscribe()
 	}
+
+	async function handleExit() {
+		if (!player) return
+		
+		const confirmExit = confirm('Are you sure you want to leave the game?')
+		if (!confirmExit) return
+
+		exiting = true
+		const success = await exitGame(player.id, roomCode)
+		
+		if (success) {
+			// Unsubscribe from realtime updates
+			supabase.channel('room-changes').unsubscribe()
+			// Navigate to home
+			goto('/')
+		} else {
+			errorMessage = 'Failed to exit game. Please try again.'
+			exiting = false
+		}
+	}
 </script>
 
 <div class="max-w-7xl mx-auto p-6">
@@ -134,8 +160,17 @@
 		</div>
 	{:else}
 		{#if player && localStorage.getItem(`gamePlayer_${roomCode}`)}
-			<div class="bg-baby-blue-50 border-2 border-baby-blue-200 rounded-xl p-4 mb-6 text-center">
-				<p class="text-baby-blue-800 font-friendly font-medium">👋 Welcome back, {player.name}!</p>
+			<div class="bg-baby-blue-50 border-2 border-baby-blue-200 rounded-xl p-4 mb-6">
+				<div class="flex justify-between items-center">
+					<p class="text-baby-blue-800 font-friendly font-medium">👋 Welcome back, {player.name}!</p>
+					<button
+						class="bg-red-500 hover:bg-red-600 text-white font-friendly font-medium py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
+						disabled={exiting}
+						onclick={handleExit}
+					>
+						{exiting ? '⏳ Exiting...' : '🚪 Exit Game'}
+					</button>
+				</div>
 			</div>
 		{/if}
 

@@ -1,20 +1,38 @@
 <script>
-    import { onMount } from 'svelte'
-    
-    onMount(() => {
-        // Redirect to host page for now
-        window.location.href = '/host'
-    })
+    let roomCode = $state('')
 </script>
 
 <div class="game-container">
     <h1 class="text-4xl font-party text-baby-blue-700 mb-4">🍼 Guess Dat Baby! 👶</h1>
-    <p class="text-baby-pink-600 font-friendly mb-6">Redirecting to host page...</p>
+    <p class="text-baby-pink-600 font-friendly mb-8">Welcome to the cutest guessing game!</p>
     
-    <div class="text-center">
-        <a href="/host" class="bg-baby-blue-500 hover:bg-baby-blue-600 text-white font-friendly font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
-            Go to Host Page
-        </a>
+    <div class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+        <div class="bg-baby-blue-50 rounded-xl p-6 border-2 border-baby-blue-200">
+            <h2 class="text-2xl font-party text-baby-blue-700 mb-4">🎮 Join a Game</h2>
+            <p class="text-gray-600 font-friendly mb-4">Enter the room code to join</p>
+            <input
+                type="text"
+                bind:value={roomCode}
+                placeholder="Enter room code"
+                class="w-full px-4 py-3 border-2 border-baby-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-baby-pink-400 focus:border-baby-pink-400 font-friendly uppercase text-center mb-4"
+                maxlength="4"
+            />
+            <a 
+                href={roomCode ? `/${roomCode}` : '#'}
+                class="block bg-baby-pink-500 hover:bg-baby-pink-600 text-white font-friendly font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg {!roomCode ? 'opacity-50 cursor-not-allowed' : ''}"
+                onclick={(e) => !roomCode && e.preventDefault()}
+            >
+                Join Game
+            </a>
+        </div>
+        
+        <div class="bg-sunshine-50 rounded-xl p-6 border-2 border-sunshine-200">
+            <h2 class="text-2xl font-party text-sunshine-700 mb-4">🎭 Host a Game</h2>
+            <p class="text-gray-600 font-friendly mb-4">Create a new game room</p>
+            <a href="/host" class="block bg-baby-blue-500 hover:bg-baby-blue-600 text-white font-friendly font-bold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg mt-auto">
+                Create New Game
+            </a>
+        </div>
     </div>
 </div>
 
